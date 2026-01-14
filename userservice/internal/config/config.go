@@ -52,7 +52,7 @@ type PostgresConfig struct {
 }
 
 type LoggerConfig struct {
-	level string `yaml:"level"`
+	Level string `yaml:"level"`
 }
 
 type RedisConfig struct {
