@@ -18,9 +18,10 @@ type Config struct {
 }
 
 type RestAPIConfig struct {
-	Port         uint32        `yaml:"port"`
-	WriteTimeout time.Duration `yaml:"write_timeout"`
-	ReadTimeout  time.Duration `yaml:"read_timeout"`
+	Port            uint32        `yaml:"port"`
+	WriteTimeout    time.Duration `yaml:"write_timeout"`
+	ReadTimeout     time.Duration `yaml:"read_timeout"`
+	ShutdownTimeout time.Duration `yaml:"shutdown_timeout"`
 }
 
 type GRPCConfig struct {
