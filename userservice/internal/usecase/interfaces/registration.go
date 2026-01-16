@@ -6,5 +6,5 @@ import (
 )
 
 type RegistrationUsecase interface {
-	RegUser(ctx context.Context, in *regmodel.RegInput) *regmodel.RegOutput
+	RegUser(ctx context.Context, in *regmodel.RegInput) (*regmodel.RegOutput, error)
 }

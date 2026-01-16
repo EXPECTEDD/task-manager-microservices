@@ -16,6 +16,6 @@ func NewRegUC(log *slog.Logger) *RegUC {
 	}
 }
 
-func (r *RegUC) RegUser(ctx context.Context, in *regmodel.RegInput) *regmodel.RegOutput {
+func (r *RegUC) RegUser(ctx context.Context, in *regmodel.RegInput) (*regmodel.RegOutput, error) {
 	panic("not implemented")
 }
