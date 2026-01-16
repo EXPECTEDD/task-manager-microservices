@@ -23,6 +23,7 @@ type RestAPIConfig struct {
 	ReadTimeout     time.Duration `yaml:"read_timeout"`
 	ShutdownTimeout time.Duration `yaml:"shutdown_timeout"`
 	RequestTimeout  time.Duration `yaml:"request_timeout"`
+	Mode            string        `yaml:"mode"`
 }
 
 type GRPCConfig struct {

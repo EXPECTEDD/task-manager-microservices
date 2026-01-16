@@ -4,6 +4,7 @@ restapi:
   read_timeout: 10s
   shutdown_timeout: 10s
   request_timeout: 15s
+  mode: debug
 
 grpc:
   port: 44045
