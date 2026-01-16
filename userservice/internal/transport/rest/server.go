@@ -24,7 +24,7 @@ func (r *RestServer) MustStart() {
 
 	if err := r.serv.ListenAndServe(); err != nil {
 		if err != http.ErrServerClosed {
-			panic("server bad start")
+			panic("server bad start: " + err.Error())
 		}
 	}
 }
