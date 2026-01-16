@@ -5,7 +5,7 @@ import (
 	posmodels "userservice/internal/infrastructure/postgres/models"
 )
 
-func modelToDomain(um *posmodels.UserPosModel) *userdomain.UserDomain {
+func ModelToDomain(um *posmodels.UserPosModel) *userdomain.UserDomain {
 	return userdomain.NewUserDomain(
 		um.FirstName,
 		um.MiddleName.String,
