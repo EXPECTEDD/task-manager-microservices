@@ -48,14 +48,7 @@ func (h *RestHandler) Registration(ctx *gin.Context) {
 		return
 	}
 
-	ri, err := handlmapper.RegRequestToInput(&regRequest)
-	if err != nil {
-		log.Warn("incorrect data", slog.String("error", err.Error()))
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
+	ri := handlmapper.RegRequestToInput(&regRequest)
 
 	if ro, err := h.regUC.RegUser(ctx.Request.Context(), ri); err != nil {
 		if errors.Is(err, regerr.ErrUserAlreadyExists) {
