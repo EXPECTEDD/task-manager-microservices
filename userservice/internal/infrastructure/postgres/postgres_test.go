@@ -78,3 +78,44 @@ func TestPostgres_FindByEmail(t *testing.T) {
 		})
 	}
 }
+
+func TestPostgres_Save(t *testing.T) {
+	tests := []struct {
+		testName string
+		user     userdomain.UserDomain
+
+		expId  uint32
+		expErr error
+	}{
+		{
+			testName: "Success",
+			user: *userdomain.NewUserDomain(
+				"Ivan",
+				"Ivanovich",
+				"Ivanov",
+				"somePass",
+				"gmail@gmail.com",
+			),
+			expId:  1,
+			expErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			assert.NoError(t, err)
+			defer db.Close()
+
+			mock.ExpectQuery(regexp.QuoteMeta(QuerySaveUser)).
+				WithArgs(tt.user.FirstName, tt.user.MiddleName, tt.user.LastName, tt.user.HashPassword, tt.user.Email).
+				WillReturnRows(mock.NewRows([]string{"id"}).
+					AddRow(1))
+
+			repo := NewPostgres(db)
+			id, err := repo.Save(context.Background(), &tt.user)
+			assert.ErrorIs(t, tt.expErr, err)
+			assert.Equal(t, tt.expId, id)
+		})
+	}
+}
