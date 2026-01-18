@@ -46,7 +46,7 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASS=${REDIS_PASS}
       - REDIS_DB=${REDIS_DB}
-      - REDIS_TTL_H=${REDIS_TTL_H}
+      - REDIS_TTL_SEC=${REDIS_TTL_SEC}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_USER=${DB_USER}
