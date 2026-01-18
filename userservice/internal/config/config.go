@@ -3,12 +3,18 @@ package config
 import (
 	"flag"
 	"os"
+	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v3"
 )
 
+var (
+	dockerType = "docker"
+)
+
 type Config struct {
+	Type         string            `yaml:"type"`
 	RestConf     RestAPIConfig     `yaml:"restapi"`
 	GrpcConf     GRPCConfig        `yaml:"grpc"`
 	ConnConf     ConnectionsConfig `yaml:"connections"`
@@ -86,7 +92,36 @@ func MustLoad() Config {
 		panic("cannot parse config path")
 	}
 
+	if config.Type == dockerType {
+		mustLoadPostgresConfig(&config)
+	}
+
 	return config
+}
+
+func mustLoadPostgresConfig(cfg *Config) {
+	cfg.PostgresConf.Host = os.Getenv("DB_HOST")
+	if cfg.PostgresConf.Host == "" {
+		panic("PostgresConfig host field empty")
+	}
+	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
+	cfg.PostgresConf.Port = uint32(port)
+	cfg.PostgresConf.User = os.Getenv("DB_USER")
+	if cfg.PostgresConf.User == "" {
+		panic("PostgresConfig user field empty")
+	}
+	cfg.PostgresConf.DbName = os.Getenv("DB_NAME")
+	if cfg.PostgresConf.DbName == "" {
+		panic("PostgresConfig db name field empty")
+	}
+	cfg.PostgresConf.Password = os.Getenv("DB_PASS")
+	if cfg.PostgresConf.Password == "" {
+		panic("PostgresConfig password field empty")
+	}
+	cfg.PostgresConf.Sslmode = os.Getenv("DB_MODE")
+	if cfg.PostgresConf.Sslmode == "" {
+		panic("PostgresConfig sslmode field empty")
+	}
 }
 
 func fetchConfigPath() string {

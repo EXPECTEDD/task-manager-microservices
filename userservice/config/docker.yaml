@@ -1,4 +1,4 @@
-type: local
+type: docker
 
 restapi:
   port: 44044
@@ -19,14 +19,6 @@ connections:
   taskservice:
     port: 44047
     timeout: 5s
-
-postgres:
-  host: localhost
-  port: 5432
-  user: app_user
-  db_name: users
-  password: app_user_pass
-  sslmode: disable
 
 logger:
   level: debug
