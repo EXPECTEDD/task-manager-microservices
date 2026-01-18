@@ -9,6 +9,7 @@ import (
 	bcrypthash "userservice/internal/infrastructure/bcrypt"
 	"userservice/internal/infrastructure/postgres"
 	myredis "userservice/internal/infrastructure/redis"
+	uuidgen "userservice/internal/infrastructure/uuid"
 	"userservice/internal/transport/rest"
 	resthandler "userservice/internal/transport/rest/handler"
 	"userservice/internal/usecase/implementations/login"
@@ -32,9 +33,10 @@ func NewApp(cfg *config.Config, log *slog.Logger) *App {
 	pos := postgres.NewPostgres(db)
 	hasher := bcrypthash.NewBcryptHasher()
 	redis := myredis.NewRedis(client, &cfg.RedisConf.TTL)
+	idgen := uuidgen.NewUUIDGenerator()
 
 	regUC := registration.NewRegUC(log, pos, hasher)
-	logUC := login.NewLoginUC(log, pos, hasher, redis)
+	logUC := login.NewLoginUC(log, pos, hasher, redis, idgen)
 
 	handl := resthandler.NewRestHandler(log, regUC, logUC)
 
