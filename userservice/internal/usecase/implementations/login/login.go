@@ -51,29 +51,29 @@ func (l *LoginUC) Login(ctx context.Context, in *logmodel.LoginInput) (*logmodel
 	if err != nil {
 		if errors.Is(err, storagerepo.ErrNoRows) {
 			log.Info("login stopped: user not found")
-			return logmodel.NewLoginOutput(invalidSessionId), logerr.ErrUserNotFound
+			return &logmodel.LoginOutput{}, logerr.ErrUserNotFound
 		}
 		log.Warn("login stopped", slog.String("error", err.Error()))
-		return logmodel.NewLoginOutput(invalidSessionId), err
+		return &logmodel.LoginOutput{}, err
 	}
 
 	if err := l.passHasher.ComparePassword([]byte(ud.HashPassword), []byte(in.Password)); err != nil {
 		if errors.Is(err, hasher.ErrWrongPassword) {
 			log.Info("login stopped: wrong password")
-			return logmodel.NewLoginOutput(invalidSessionId), logerr.ErrInvalidPassword
+			return &logmodel.LoginOutput{}, logerr.ErrInvalidPassword
 		}
 		log.Warn("login stopped", slog.String("error", err.Error()))
-		return logmodel.NewLoginOutput(invalidSessionId), err
+		return &logmodel.LoginOutput{}, err
 	}
 
 	sessionId := l.idgen.New()
 
 	if err := l.sessionRepo.Save(ctx, sessionId, ud.Id); err != nil {
 		log.Warn("login stopped: cannot save session")
-		return logmodel.NewLoginOutput(invalidSessionId), err
+		return &logmodel.LoginOutput{}, err
 	}
 
 	log.Info("user successfully login")
 
-	return logmodel.NewLoginOutput(sessionId), nil
+	return logmodel.NewLoginOutput(sessionId, ud.FirstName, ud.MiddleName, ud.LastName), nil
 }
