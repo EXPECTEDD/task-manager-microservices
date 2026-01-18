@@ -100,7 +100,7 @@ func TestNewRestHandler_Registration(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			handl := NewRestHandler(log, regMock)
+			handl := NewRestHandler(log, regMock, nil)
 
 			gin.SetMode(gin.DebugMode)
 			router := gin.New()

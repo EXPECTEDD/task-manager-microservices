@@ -17,12 +17,14 @@ type RestHandler struct {
 	log *slog.Logger
 
 	regUC interfaces.RegistrationUsecase
+	logUC interfaces.LoginUsecase
 }
 
-func NewRestHandler(log *slog.Logger, regUC interfaces.RegistrationUsecase) *RestHandler {
+func NewRestHandler(log *slog.Logger, regUC interfaces.RegistrationUsecase, logUC interfaces.LoginUsecase) *RestHandler {
 	return &RestHandler{
 		log:   log,
 		regUC: regUC,
+		logUC: logUC,
 	}
 }
 
