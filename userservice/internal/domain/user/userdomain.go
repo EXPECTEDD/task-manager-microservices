@@ -1,6 +1,7 @@
 package userdomain
 
 type UserDomain struct {
+	Id           uint32
 	FirstName    string
 	MiddleName   string
 	LastName     string
@@ -8,8 +9,9 @@ type UserDomain struct {
 	Email        string
 }
 
-func NewUserDomain(firstname, middlename, lastname, hashPassword, email string) *UserDomain {
+func NewUserDomain(id uint32, firstname, middlename, lastname, hashPassword, email string) *UserDomain {
 	return &UserDomain{
+		Id:           id,
 		FirstName:    firstname,
 		MiddleName:   middlename,
 		LastName:     lastname,
