@@ -38,7 +38,7 @@ func NewApp(cfg *config.Config, log *slog.Logger) *App {
 	regUC := registration.NewRegUC(log, pos, hasher)
 	logUC := login.NewLoginUC(log, pos, hasher, redis, idgen)
 
-	handl := resthandler.NewRestHandler(log, regUC, logUC)
+	handl := resthandler.NewRestHandler(log, &cfg.RestConf.CookieTTL, regUC, logUC)
 
 	restServer := mustLoadHttpServer(cfg, log, handl)
 
