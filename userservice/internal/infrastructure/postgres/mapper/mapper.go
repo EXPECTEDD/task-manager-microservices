@@ -7,6 +7,7 @@ import (
 
 func ModelToDomain(um *posmodels.UserPosModel) *userdomain.UserDomain {
 	return userdomain.NewUserDomain(
+		um.Id,
 		um.FirstName,
 		um.MiddleName.String,
 		um.LastName,

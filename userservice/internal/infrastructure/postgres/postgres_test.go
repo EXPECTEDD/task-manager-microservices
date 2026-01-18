@@ -38,6 +38,7 @@ func TestPostgres_FindByEmail(t *testing.T) {
 			mockErr: nil,
 
 			expUser: userdomain.NewUserDomain(
+				1,
 				"Ivan",
 				"Ivanovich",
 				"Ivanov",
@@ -90,6 +91,7 @@ func TestPostgres_Save(t *testing.T) {
 		{
 			testName: "Success",
 			user: *userdomain.NewUserDomain(
+				1,
 				"Ivan",
 				"Ivanovich",
 				"Ivanov",
