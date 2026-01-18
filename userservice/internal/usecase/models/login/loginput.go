@@ -1,13 +1,13 @@
 package logmodel
 
 type LoginInput struct {
-	Email        string
-	HashPassword string
+	Email    string
+	Password string
 }
 
-func NewLoginInput(email, hashPassword string) *LoginInput {
+func NewLoginInput(email, password string) *LoginInput {
 	return &LoginInput{
-		Email:        email,
-		HashPassword: hashPassword,
+		Email:    email,
+		Password: password,
 	}
 }
