@@ -4,9 +4,12 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"time"
+	logindto "userservice/internal/transport/rest/handler/dto/login"
 	regdto "userservice/internal/transport/rest/handler/dto/registration"
 	handlmapper "userservice/internal/transport/rest/handler/mapper"
 	handlvalidator "userservice/internal/transport/rest/handler/validator"
+	logerr "userservice/internal/usecase/errors/login"
 	regerr "userservice/internal/usecase/errors/registration"
 	"userservice/internal/usecase/interfaces"
 
@@ -14,17 +17,19 @@ import (
 )
 
 type RestHandler struct {
-	log *slog.Logger
+	log       *slog.Logger
+	cookieTTL *time.Duration
 
 	regUC interfaces.RegistrationUsecase
 	logUC interfaces.LoginUsecase
 }
 
-func NewRestHandler(log *slog.Logger, regUC interfaces.RegistrationUsecase, logUC interfaces.LoginUsecase) *RestHandler {
+func NewRestHandler(log *slog.Logger, cookieTTL *time.Duration, regUC interfaces.RegistrationUsecase, logUC interfaces.LoginUsecase) *RestHandler {
 	return &RestHandler{
-		log:   log,
-		regUC: regUC,
-		logUC: logUC,
+		log:       log,
+		cookieTTL: cookieTTL,
+		regUC:     regUC,
+		logUC:     logUC,
 	}
 }
 
@@ -50,9 +55,9 @@ func (h *RestHandler) Registration(ctx *gin.Context) {
 		return
 	}
 
-	ri := handlmapper.RegRequestToInput(&regRequest)
+	in := handlmapper.RegRequestToInput(&regRequest)
 
-	if ro, err := h.regUC.RegUser(ctx.Request.Context(), ri); err != nil {
+	if ro, err := h.regUC.RegUser(ctx.Request.Context(), in); err != nil {
 		if errors.Is(err, regerr.ErrUserAlreadyExists) {
 			log.Info("user already exists")
 			ctx.JSON(http.StatusConflict, gin.H{
@@ -65,12 +70,61 @@ func (h *RestHandler) Registration(ctx *gin.Context) {
 			})
 		}
 	} else {
-		log.Info("request completed successfully")
+		log.Info("registration request completed successfully")
 		rr := handlmapper.RegOutputToResponse(ro)
 		ctx.JSON(http.StatusOK, rr)
 	}
 }
 
 func (h *RestHandler) Login(ctx *gin.Context) {
-	panic("not implemented")
+	const op = "resthandler.Login"
+	log := h.log.With(slog.String("op", op))
+
+	log.Info("start login request")
+
+	var logRequest logindto.LoginRequest
+
+	if err := ctx.ShouldBindJSON(&logRequest); err != nil {
+		log.Warn("error with request data", slog.String("error", err.Error()))
+		if errMap, ok := handlvalidator.MapValidationErrors(err); ok {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"errors": errMap,
+			})
+		} else {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": "bad request body",
+			})
+		}
+		return
+	}
+
+	in := handlmapper.LogRequestToInput(&logRequest)
+
+	if lo, err := h.logUC.Login(ctx.Request.Context(), in); err != nil {
+		if err != nil {
+			if errors.Is(err, logerr.ErrUserNotFound) {
+				log.Info("user not found")
+				ctx.JSON(http.StatusNotFound, gin.H{
+					"error": err.Error(),
+				})
+			} else if errors.Is(err, logerr.ErrInvalidPassword) {
+				log.Info("invalid password")
+				ctx.JSON(http.StatusUnauthorized, gin.H{
+					"error": err.Error(),
+				})
+			} else {
+				log.Warn("an error occurred while executing the request", slog.String("error", err.Error()))
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"error": "internal server error",
+				})
+			}
+		}
+	} else {
+		log.Info("login request completed successfully")
+		ctx.SetCookie("sessionId", lo.SessionId, int(h.cookieTTL.Seconds()), "/", "", false, true)
+		lr := handlmapper.LogOutputToResponse(lo)
+		ctx.JSON(http.StatusOK, gin.H{
+			"user": lr,
+		})
+	}
 }
