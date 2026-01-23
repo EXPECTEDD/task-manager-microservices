@@ -13,6 +13,7 @@ import (
 	grpchandler "userservice/internal/transport/grpc/handler"
 	"userservice/internal/transport/rest"
 	resthandler "userservice/internal/transport/rest/handler"
+	"userservice/internal/usecase/implementations/authenticate"
 	"userservice/internal/usecase/implementations/login"
 	"userservice/internal/usecase/implementations/registration"
 	"userservice/pkg/logger"
@@ -43,9 +44,10 @@ func NewApp() *App {
 
 	regUC := registration.NewRegUC(log, pos, hasher)
 	logUC := login.NewLoginUC(log, pos, hasher, redis, idgen)
+	authUC := authenticate.NewAuthUC(log, redis)
 
 	resthandl := resthandler.NewRestHandler(log, &cfg.RestConf.CookieTTL, regUC, logUC)
-	grpchandl := grpchandler.NewGRPCHandler(log)
+	grpchandl := grpchandler.NewGRPCHandler(log, cfg.GrpcConf.Timeout, authUC)
 
 	restServer := mustLoadHttpServer(&cfg, log, resthandl)
 	grpcserv := mustLoadGRPCServer(&cfg, log, grpchandl)
