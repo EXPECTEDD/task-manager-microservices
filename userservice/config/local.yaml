@@ -11,7 +11,7 @@ restapi:
 
 grpc:
   port: 44045
-  timeout: 30s
+  timeout: 15s
 
 connections:
   projectservice:
