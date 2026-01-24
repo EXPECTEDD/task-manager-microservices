@@ -5,7 +5,6 @@ import (
 	"io"
 	"log/slog"
 	"testing"
-	"time"
 	grpchandlmocks "userservice/internal/transport/grpc/handler/mocks"
 	autherr "userservice/internal/usecase/errors/authenticate"
 	authmodel "userservice/internal/usecase/models/authenticate"
@@ -25,9 +24,6 @@ func TestGRPCHandler(t *testing.T) {
 
 		handlReq *userservicev1.GetIdBySessionRequest
 
-		expFuncTimeout bool
-		funcTimeout    time.Duration
-
 		authInput  *authmodel.AuthInput
 		authOutput *authmodel.AuthOutput
 		authErr    error
@@ -42,8 +38,6 @@ func TestGRPCHandler(t *testing.T) {
 				SessionId: "sessionId",
 			},
 
-			expFuncTimeout: false,
-
 			authInput:  authmodel.NewAuthInput("sessionId"),
 			authOutput: authmodel.NewAuthOutput(1),
 			authErr:    nil,
@@ -53,29 +47,11 @@ func TestGRPCHandler(t *testing.T) {
 			},
 			expErr: nil,
 		}, {
-			testName: "Timeout",
-
-			handlReq: &userservicev1.GetIdBySessionRequest{
-				SessionId: "sessionId",
-			},
-
-			expFuncTimeout: true,
-			funcTimeout:    2 * time.Millisecond,
-
-			authInput:  authmodel.NewAuthInput("sessionId"),
-			authOutput: authmodel.NewAuthOutput(1),
-			authErr:    nil,
-
-			expOutput: nil,
-			expErr:    status.Error(codes.DeadlineExceeded, "request time out"),
-		}, {
 			testName: "Session not found",
 
 			handlReq: &userservicev1.GetIdBySessionRequest{
 				SessionId: "sessionId",
 			},
-
-			expFuncTimeout: false,
 
 			authInput:  authmodel.NewAuthInput("sessionId"),
 			authOutput: authmodel.NewAuthOutput(0),
@@ -93,26 +69,12 @@ func TestGRPCHandler(t *testing.T) {
 
 			authUCMock := grpchandlmocks.NewMockAuthenticateUsecase(ctrl)
 
-			if tt.expFuncTimeout {
-				authUCMock.EXPECT().AuthenticateSession(gomock.Any(), tt.authInput).
-					DoAndReturn(func(ctx context.Context, in *authmodel.AuthInput) (uint32, error) {
-						time.Sleep(tt.funcTimeout)
-
-						select {
-						case <-ctx.Done():
-							return uint32(0), ctx.Err()
-						default:
-							return 1, nil
-						}
-					})
-			} else {
-				authUCMock.EXPECT().AuthenticateSession(gomock.Any(), tt.authInput).
-					Return(tt.authOutput, tt.authErr)
-			}
+			authUCMock.EXPECT().AuthenticateSession(gomock.Any(), tt.authInput).
+				Return(tt.authOutput, tt.authErr)
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			grpcHandl := NewGRPCHandler(log, 1*time.Millisecond, authUCMock)
+			grpcHandl := NewGRPCHandler(log, authUCMock)
 			res, err := grpcHandl.GetIdBySession(context.Background(), tt.handlReq)
 			assert.ErrorIs(t, err, tt.expErr)
 			assert.Equal(t, tt.expOutput, res)
