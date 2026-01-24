@@ -9,10 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const (
-	urlLog = "http://localhost:44044/login"
-)
-
 func TestLogin_Success_Integration(t *testing.T) {
 	email, pass := registrateUser(t)
 
@@ -132,36 +128,4 @@ func TestLogin_WrongPassword_Integration(t *testing.T) {
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&resBody))
 	require.Equal(t, expBody, resBody.Error)
 	require.Equal(t, expStatusCode, resp.StatusCode)
-}
-
-func registrateUser(t *testing.T) (string, string) {
-	email := uniqueEmail()
-	pass := "somePass"
-
-	body := map[string]string{
-		"first_name":  "Ivan",
-		"middle_name": "Ivanovich",
-		"last_name":   "Ivanov",
-		"password":    pass,
-		"email":       email,
-	}
-
-	b, err := json.Marshal(body)
-	require.NoError(t, err)
-
-	resp, err := http.Post(urlReg, contentType, bytes.NewReader(b))
-	require.NoError(t, err)
-	defer resp.Body.Close()
-
-	expStatusCode := http.StatusOK
-
-	var resBody struct {
-		IsRegistered bool `json:"is_registered"`
-	}
-
-	require.NoError(t, json.NewDecoder(resp.Body).Decode(&resBody))
-	require.True(t, resBody.IsRegistered)
-	require.Equal(t, expStatusCode, resp.StatusCode)
-
-	return email, pass
 }

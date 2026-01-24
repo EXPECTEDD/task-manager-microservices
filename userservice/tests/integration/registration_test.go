@@ -6,13 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-)
-
-const (
-	contentType = "application/json"
-	urlReg      = "http://localhost:44044/registration"
 )
 
 func TestRegistration_Success_Integration(t *testing.T) {
@@ -105,8 +99,4 @@ func TestRegistration_AlreadyExists_Integration(t *testing.T) {
 	require.NoError(t, json.NewDecoder(resp2.Body).Decode(&resBody2))
 	require.Equal(t, expBody2, resBody2.ExpErr)
 	require.Equal(t, expStatusCode, resp2.StatusCode)
-}
-
-func uniqueEmail() string {
-	return "testgmail" + uuid.NewString() + "@gmail.com"
 }
