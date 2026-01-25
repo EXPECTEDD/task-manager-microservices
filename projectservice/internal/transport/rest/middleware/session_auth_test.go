@@ -71,6 +71,9 @@ func TestSessionAuthMiddleware(t *testing.T) {
 			router.Use(GetSessionMiddleware(log))
 			router.Use(SessionAuthMiddleware(log, sessValidMock, 15*time.Second))
 			router.GET("/test", func(ctx *gin.Context) {
+				userId, ok := ctx.Get("userId")
+				assert.True(t, ok)
+				assert.Equal(t, tt.sessOutput, userId)
 				ctx.JSON(http.StatusOK, "ok")
 			})
 
