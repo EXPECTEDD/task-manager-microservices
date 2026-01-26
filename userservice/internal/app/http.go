@@ -20,8 +20,8 @@ func mustLoadHttpServer(cfg *config.Config, log *slog.Logger, handl *resthandler
 	router.Use(gin.Recovery())
 
 	// REGISTER HTTP ROUTES
-	router.POST("/registration", handl.Registration)
-	router.POST("/login", handl.Login)
+	router.POST("/user/registration", handl.Registration)
+	router.POST("/user/login", handl.Login)
 
 	// SERVER SETTING
 	serv := &http.Server{
