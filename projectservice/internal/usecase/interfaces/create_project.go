@@ -1,11 +1,10 @@
 package interfaces
 
 import (
+	"context"
 	createmodel "projectservice/internal/usecase/models/createproject"
-
-	"github.com/gin-gonic/gin"
 )
 
 type CreateProjectUsecase interface {
-	Execute(ctx *gin.Context, in *createmodel.CreateProjectInput) (*createmodel.CreateProjectOutput, error)
+	Execute(ctx context.Context, in *createmodel.CreateProjectInput) (*createmodel.CreateProjectOutput, error)
 }
