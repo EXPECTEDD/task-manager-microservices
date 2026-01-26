@@ -131,9 +131,9 @@ func TestRegUser(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			regUC := NewRegUC(log, storMock, hasherMock)
+			regUC := NewRegUserUC(log, storMock, hasherMock)
 
-			out, err := regUC.RegUser(context.Background(), &tt.regUserInput)
+			out, err := regUC.Execute(context.Background(), &tt.regUserInput)
 			assert.ErrorIs(t, tt.regUserExpectErr, err)
 			assert.Equal(t, tt.regUserExpectOutput.IsRegistered, out.IsRegistered)
 		})

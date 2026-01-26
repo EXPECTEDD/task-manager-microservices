@@ -5,6 +5,6 @@ import (
 	authmodel "userservice/internal/usecase/models/authenticate"
 )
 
-type AuthenticateUsecase interface {
-	AuthenticateSession(ctx context.Context, in *authmodel.AuthInput) (*authmodel.AuthOutput, error)
+type GetUserIDBySessionUsecase interface {
+	Execute(ctx context.Context, in *authmodel.AuthInput) (*authmodel.AuthOutput, error)
 }

@@ -15,23 +15,23 @@ var (
 	invalidId uint32 = 0
 )
 
-type RegUC struct {
+type RegUserUC struct {
 	log *slog.Logger
 
 	storage    storagerepo.StorageRepo
 	passHasher hasher.PasswordHasher
 }
 
-func NewRegUC(log *slog.Logger, storage storagerepo.StorageRepo, passHasher hasher.PasswordHasher) *RegUC {
-	return &RegUC{
+func NewRegUserUC(log *slog.Logger, storage storagerepo.StorageRepo, passHasher hasher.PasswordHasher) *RegUserUC {
+	return &RegUserUC{
 		log:        log,
 		storage:    storage,
 		passHasher: passHasher,
 	}
 }
 
-func (r *RegUC) RegUser(ctx context.Context, in *regmodel.RegInput) (*regmodel.RegOutput, error) {
-	const op = "registration.RegUser"
+func (r *RegUserUC) Execute(ctx context.Context, in *regmodel.RegInput) (*regmodel.RegOutput, error) {
+	const op = "registration.Execute"
 	log := r.log.With(slog.String("op", op), slog.String("email", in.Email))
 
 	log.Info("user registration started")

@@ -13,21 +13,21 @@ var (
 	invalidId uint32 = 0
 )
 
-type AuthUC struct {
+type GetUserIDBySessionUC struct {
 	log *slog.Logger
 
 	sessionRepo session.SessionRepo
 }
 
-func NewAuthUC(log *slog.Logger, sessionRepo session.SessionRepo) *AuthUC {
-	return &AuthUC{
+func NewGetUserIDBySessionUC(log *slog.Logger, sessionRepo session.SessionRepo) *GetUserIDBySessionUC {
+	return &GetUserIDBySessionUC{
 		log:         log,
 		sessionRepo: sessionRepo,
 	}
 }
 
-func (a *AuthUC) AuthenticateSession(ctx context.Context, in *authmodel.AuthInput) (*authmodel.AuthOutput, error) {
-	const op = "authenticate.AuthenticateSession"
+func (a *GetUserIDBySessionUC) Execute(ctx context.Context, in *authmodel.AuthInput) (*authmodel.AuthOutput, error) {
+	const op = "authenticate.Execute"
 	log := a.log.With(slog.String("op", op))
 
 	log.Info("authenticate session starting")

@@ -17,41 +17,41 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockAuthenticateUsecase is a mock of AuthenticateUsecase interface.
-type MockAuthenticateUsecase struct {
+// MockGetUserIDBySessionUsecase is a mock of GetUserIDBySessionUsecase interface.
+type MockGetUserIDBySessionUsecase struct {
 	ctrl     *gomock.Controller
-	recorder *MockAuthenticateUsecaseMockRecorder
+	recorder *MockGetUserIDBySessionUsecaseMockRecorder
 	isgomock struct{}
 }
 
-// MockAuthenticateUsecaseMockRecorder is the mock recorder for MockAuthenticateUsecase.
-type MockAuthenticateUsecaseMockRecorder struct {
-	mock *MockAuthenticateUsecase
+// MockGetUserIDBySessionUsecaseMockRecorder is the mock recorder for MockGetUserIDBySessionUsecase.
+type MockGetUserIDBySessionUsecaseMockRecorder struct {
+	mock *MockGetUserIDBySessionUsecase
 }
 
-// NewMockAuthenticateUsecase creates a new mock instance.
-func NewMockAuthenticateUsecase(ctrl *gomock.Controller) *MockAuthenticateUsecase {
-	mock := &MockAuthenticateUsecase{ctrl: ctrl}
-	mock.recorder = &MockAuthenticateUsecaseMockRecorder{mock}
+// NewMockGetUserIDBySessionUsecase creates a new mock instance.
+func NewMockGetUserIDBySessionUsecase(ctrl *gomock.Controller) *MockGetUserIDBySessionUsecase {
+	mock := &MockGetUserIDBySessionUsecase{ctrl: ctrl}
+	mock.recorder = &MockGetUserIDBySessionUsecaseMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockAuthenticateUsecase) EXPECT() *MockAuthenticateUsecaseMockRecorder {
+func (m *MockGetUserIDBySessionUsecase) EXPECT() *MockGetUserIDBySessionUsecaseMockRecorder {
 	return m.recorder
 }
 
-// AuthenticateSession mocks base method.
-func (m *MockAuthenticateUsecase) AuthenticateSession(ctx context.Context, in *authmodel.AuthInput) (*authmodel.AuthOutput, error) {
+// Execute mocks base method.
+func (m *MockGetUserIDBySessionUsecase) Execute(ctx context.Context, in *authmodel.AuthInput) (*authmodel.AuthOutput, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AuthenticateSession", ctx, in)
+	ret := m.ctrl.Call(m, "Execute", ctx, in)
 	ret0, _ := ret[0].(*authmodel.AuthOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// AuthenticateSession indicates an expected call of AuthenticateSession.
-func (mr *MockAuthenticateUsecaseMockRecorder) AuthenticateSession(ctx, in any) *gomock.Call {
+// Execute indicates an expected call of Execute.
+func (mr *MockGetUserIDBySessionUsecaseMockRecorder) Execute(ctx, in any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthenticateSession", reflect.TypeOf((*MockAuthenticateUsecase)(nil).AuthenticateSession), ctx, in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockGetUserIDBySessionUsecase)(nil).Execute), ctx, in)
 }

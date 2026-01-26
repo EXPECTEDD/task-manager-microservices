@@ -5,6 +5,6 @@ import (
 	regmodel "userservice/internal/usecase/models/registration"
 )
 
-type RegistrationUsecase interface {
-	RegUser(ctx context.Context, in *regmodel.RegInput) (*regmodel.RegOutput, error)
+type RegisterUserUsecase interface {
+	Execute(ctx context.Context, in *regmodel.RegInput) (*regmodel.RegOutput, error)
 }

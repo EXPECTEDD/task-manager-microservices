@@ -67,9 +67,9 @@ func TestGRPCHandler(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			authUCMock := grpchandlmocks.NewMockAuthenticateUsecase(ctrl)
+			authUCMock := grpchandlmocks.NewMockGetUserIDBySessionUsecase(ctrl)
 
-			authUCMock.EXPECT().AuthenticateSession(gomock.Any(), tt.authInput).
+			authUCMock.EXPECT().Execute(gomock.Any(), tt.authInput).
 				Return(tt.authOutput, tt.authErr)
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))

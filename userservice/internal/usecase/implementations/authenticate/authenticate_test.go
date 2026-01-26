@@ -61,9 +61,9 @@ func TestAuthenticate(t *testing.T) {
 			sessionMock.EXPECT().Get(gomock.Any(), tt.sessionInput).
 				Return(tt.sessionOutput, tt.sessionErr)
 
-			auth := NewAuthUC(log, sessionMock)
+			auth := NewGetUserIDBySessionUC(log, sessionMock)
 
-			out, err := auth.AuthenticateSession(context.Background(), tt.authInput)
+			out, err := auth.Execute(context.Background(), tt.authInput)
 			assert.Equal(t, tt.expErr, err)
 			assert.Equal(t, tt.expOutput, out)
 		})

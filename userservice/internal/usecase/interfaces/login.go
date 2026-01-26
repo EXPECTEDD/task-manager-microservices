@@ -5,6 +5,6 @@ import (
 	logmodel "userservice/internal/usecase/models/login"
 )
 
-type LoginUsecase interface {
-	Login(ctx context.Context, in *logmodel.LoginInput) (*logmodel.LoginOutput, error)
+type LoginUserUsecase interface {
+	Execute(ctx context.Context, in *logmodel.LoginInput) (*logmodel.LoginOutput, error)
 }

@@ -156,8 +156,8 @@ func TestLogin(t *testing.T) {
 				idgen.EXPECT().New().Return(tt.newReturn)
 			}
 
-			logUC := NewLoginUC(log, storageMock, passHasherMock, sessionMock, idgen)
-			lo, err := logUC.Login(context.Background(), tt.loginInput)
+			logUC := NewLoginUserUC(log, storageMock, passHasherMock, sessionMock, idgen)
+			lo, err := logUC.Execute(context.Background(), tt.loginInput)
 			assert.ErrorIs(t, err, tt.expLoginErr)
 			assert.Equal(t, tt.expLoginOutput, lo)
 		})

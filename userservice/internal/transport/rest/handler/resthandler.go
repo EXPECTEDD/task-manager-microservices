@@ -20,11 +20,11 @@ type RestHandler struct {
 	log       *slog.Logger
 	cookieTTL time.Duration
 
-	regUC interfaces.RegistrationUsecase
-	logUC interfaces.LoginUsecase
+	regUC interfaces.RegisterUserUsecase
+	logUC interfaces.LoginUserUsecase
 }
 
-func NewRestHandler(log *slog.Logger, cookieTTL time.Duration, regUC interfaces.RegistrationUsecase, logUC interfaces.LoginUsecase) *RestHandler {
+func NewRestHandler(log *slog.Logger, cookieTTL time.Duration, regUC interfaces.RegisterUserUsecase, logUC interfaces.LoginUserUsecase) *RestHandler {
 	return &RestHandler{
 		log:       log,
 		cookieTTL: cookieTTL,
@@ -57,7 +57,7 @@ func (h *RestHandler) Registration(ctx *gin.Context) {
 
 	in := handlmapper.RegRequestToInput(&regRequest)
 
-	if ro, err := h.regUC.RegUser(ctx.Request.Context(), in); err != nil {
+	if ro, err := h.regUC.Execute(ctx.Request.Context(), in); err != nil {
 		if errors.Is(err, regerr.ErrUserAlreadyExists) {
 			log.Info("user already exists")
 			ctx.JSON(http.StatusConflict, gin.H{
@@ -100,7 +100,7 @@ func (h *RestHandler) Login(ctx *gin.Context) {
 
 	in := handlmapper.LogRequestToInput(&logRequest)
 
-	if lo, err := h.logUC.Login(ctx.Request.Context(), in); err != nil {
+	if lo, err := h.logUC.Execute(ctx.Request.Context(), in); err != nil {
 		if err != nil {
 			if errors.Is(err, logerr.ErrUserNotFound) {
 				log.Info("user not found")

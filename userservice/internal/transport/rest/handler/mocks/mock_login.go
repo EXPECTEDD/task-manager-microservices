@@ -17,41 +17,41 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockLoginUsecase is a mock of LoginUsecase interface.
-type MockLoginUsecase struct {
+// MockLoginUserUsecase is a mock of LoginUserUsecase interface.
+type MockLoginUserUsecase struct {
 	ctrl     *gomock.Controller
-	recorder *MockLoginUsecaseMockRecorder
+	recorder *MockLoginUserUsecaseMockRecorder
 	isgomock struct{}
 }
 
-// MockLoginUsecaseMockRecorder is the mock recorder for MockLoginUsecase.
-type MockLoginUsecaseMockRecorder struct {
-	mock *MockLoginUsecase
+// MockLoginUserUsecaseMockRecorder is the mock recorder for MockLoginUserUsecase.
+type MockLoginUserUsecaseMockRecorder struct {
+	mock *MockLoginUserUsecase
 }
 
-// NewMockLoginUsecase creates a new mock instance.
-func NewMockLoginUsecase(ctrl *gomock.Controller) *MockLoginUsecase {
-	mock := &MockLoginUsecase{ctrl: ctrl}
-	mock.recorder = &MockLoginUsecaseMockRecorder{mock}
+// NewMockLoginUserUsecase creates a new mock instance.
+func NewMockLoginUserUsecase(ctrl *gomock.Controller) *MockLoginUserUsecase {
+	mock := &MockLoginUserUsecase{ctrl: ctrl}
+	mock.recorder = &MockLoginUserUsecaseMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockLoginUsecase) EXPECT() *MockLoginUsecaseMockRecorder {
+func (m *MockLoginUserUsecase) EXPECT() *MockLoginUserUsecaseMockRecorder {
 	return m.recorder
 }
 
-// Login mocks base method.
-func (m *MockLoginUsecase) Login(ctx context.Context, in *logmodel.LoginInput) (*logmodel.LoginOutput, error) {
+// Execute mocks base method.
+func (m *MockLoginUserUsecase) Execute(ctx context.Context, in *logmodel.LoginInput) (*logmodel.LoginOutput, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Login", ctx, in)
+	ret := m.ctrl.Call(m, "Execute", ctx, in)
 	ret0, _ := ret[0].(*logmodel.LoginOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Login indicates an expected call of Login.
-func (mr *MockLoginUsecaseMockRecorder) Login(ctx, in any) *gomock.Call {
+// Execute indicates an expected call of Execute.
+func (mr *MockLoginUserUsecaseMockRecorder) Execute(ctx, in any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockLoginUsecase)(nil).Login), ctx, in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockLoginUserUsecase)(nil).Execute), ctx, in)
 }

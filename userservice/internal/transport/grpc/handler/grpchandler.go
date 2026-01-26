@@ -19,10 +19,10 @@ type GRPCHandler struct {
 	timeout time.Duration
 	userservicev1.UnimplementedUserServiceServer
 
-	authUC interfaces.AuthenticateUsecase
+	authUC interfaces.GetUserIDBySessionUsecase
 }
 
-func NewGRPCHandler(log *slog.Logger, authUC interfaces.AuthenticateUsecase) *GRPCHandler {
+func NewGRPCHandler(log *slog.Logger, authUC interfaces.GetUserIDBySessionUsecase) *GRPCHandler {
 	return &GRPCHandler{
 		log:    log,
 		authUC: authUC,
@@ -37,7 +37,7 @@ func (g *GRPCHandler) GetIdBySession(ctx context.Context, req *userservicev1.Get
 
 	in := authmodel.NewAuthInput(req.SessionId)
 
-	out, err := g.authUC.AuthenticateSession(ctx, in)
+	out, err := g.authUC.Execute(ctx, in)
 	if err != nil {
 		if errors.Is(err, autherr.ErrSessionNotFound) {
 			log.Info("session not found")

@@ -16,7 +16,7 @@ var (
 	invalidSessionId = "invalid"
 )
 
-type LoginUC struct {
+type LoginUserUC struct {
 	log *slog.Logger
 
 	storage     storagerepo.StorageRepo
@@ -25,14 +25,14 @@ type LoginUC struct {
 	idgen       idgenerator.IDGenerator
 }
 
-func NewLoginUC(
+func NewLoginUserUC(
 	log *slog.Logger,
 	storage storagerepo.StorageRepo,
 	passHasher hasher.PasswordHasher,
 	sessionRepo session.SessionRepo,
 	idgen idgenerator.IDGenerator,
-) *LoginUC {
-	return &LoginUC{
+) *LoginUserUC {
+	return &LoginUserUC{
 		log:         log,
 		storage:     storage,
 		passHasher:  passHasher,
@@ -41,8 +41,8 @@ func NewLoginUC(
 	}
 }
 
-func (l *LoginUC) Login(ctx context.Context, in *logmodel.LoginInput) (*logmodel.LoginOutput, error) {
-	const op = "login.Login"
+func (l *LoginUserUC) Execute(ctx context.Context, in *logmodel.LoginInput) (*logmodel.LoginOutput, error) {
+	const op = "login.Execute"
 	log := l.log.With(slog.String("op", op), slog.String("email", in.Email))
 
 	log.Info("user login started")

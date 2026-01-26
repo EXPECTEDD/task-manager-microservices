@@ -17,41 +17,41 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockRegistrationUsecase is a mock of RegistrationUsecase interface.
-type MockRegistrationUsecase struct {
+// MockRegisterUserUsecase is a mock of RegisterUserUsecase interface.
+type MockRegisterUserUsecase struct {
 	ctrl     *gomock.Controller
-	recorder *MockRegistrationUsecaseMockRecorder
+	recorder *MockRegisterUserUsecaseMockRecorder
 	isgomock struct{}
 }
 
-// MockRegistrationUsecaseMockRecorder is the mock recorder for MockRegistrationUsecase.
-type MockRegistrationUsecaseMockRecorder struct {
-	mock *MockRegistrationUsecase
+// MockRegisterUserUsecaseMockRecorder is the mock recorder for MockRegisterUserUsecase.
+type MockRegisterUserUsecaseMockRecorder struct {
+	mock *MockRegisterUserUsecase
 }
 
-// NewMockRegistrationUsecase creates a new mock instance.
-func NewMockRegistrationUsecase(ctrl *gomock.Controller) *MockRegistrationUsecase {
-	mock := &MockRegistrationUsecase{ctrl: ctrl}
-	mock.recorder = &MockRegistrationUsecaseMockRecorder{mock}
+// NewMockRegisterUserUsecase creates a new mock instance.
+func NewMockRegisterUserUsecase(ctrl *gomock.Controller) *MockRegisterUserUsecase {
+	mock := &MockRegisterUserUsecase{ctrl: ctrl}
+	mock.recorder = &MockRegisterUserUsecaseMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRegistrationUsecase) EXPECT() *MockRegistrationUsecaseMockRecorder {
+func (m *MockRegisterUserUsecase) EXPECT() *MockRegisterUserUsecaseMockRecorder {
 	return m.recorder
 }
 
-// RegUser mocks base method.
-func (m *MockRegistrationUsecase) RegUser(ctx context.Context, in *regmodel.RegInput) (*regmodel.RegOutput, error) {
+// Execute mocks base method.
+func (m *MockRegisterUserUsecase) Execute(ctx context.Context, in *regmodel.RegInput) (*regmodel.RegOutput, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegUser", ctx, in)
+	ret := m.ctrl.Call(m, "Execute", ctx, in)
 	ret0, _ := ret[0].(*regmodel.RegOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// RegUser indicates an expected call of RegUser.
-func (mr *MockRegistrationUsecaseMockRecorder) RegUser(ctx, in any) *gomock.Call {
+// Execute indicates an expected call of Execute.
+func (mr *MockRegisterUserUsecaseMockRecorder) Execute(ctx, in any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegUser", reflect.TypeOf((*MockRegistrationUsecase)(nil).RegUser), ctx, in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockRegisterUserUsecase)(nil).Execute), ctx, in)
 }

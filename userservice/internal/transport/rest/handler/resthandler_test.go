@@ -98,9 +98,9 @@ func TestRestHandler_Registration(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 
-			regMock := handlmocks.NewMockRegistrationUsecase(mockCtrl)
+			regMock := handlmocks.NewMockRegisterUserUsecase(mockCtrl)
 			if tt.needExpect {
-				regMock.EXPECT().RegUser(gomock.Any(), gomock.Any()).
+				regMock.EXPECT().Execute(gomock.Any(), gomock.Any()).
 					Return(&tt.returnData, tt.returnErr)
 			}
 
@@ -215,9 +215,9 @@ func TestRestHandler_Login(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			loginUCMock := handlmocks.NewMockLoginUsecase(ctrl)
+			loginUCMock := handlmocks.NewMockLoginUserUsecase(ctrl)
 			if tt.expectLogin {
-				loginUCMock.EXPECT().Login(gomock.Any(), gomock.Any()).
+				loginUCMock.EXPECT().Execute(gomock.Any(), gomock.Any()).
 					Return(tt.loginOutReturn, tt.loginErrReturn)
 			}
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))

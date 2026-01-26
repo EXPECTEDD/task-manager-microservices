@@ -42,9 +42,9 @@ func NewApp() *App {
 	redis := myredis.NewRedis(client, &cfg.RedisConf.TTL)
 	idgen := uuidgen.NewUUIDGenerator()
 
-	regUC := registration.NewRegUC(log, pos, hasher)
-	logUC := login.NewLoginUC(log, pos, hasher, redis, idgen)
-	authUC := authenticate.NewAuthUC(log, redis)
+	regUC := registration.NewRegUserUC(log, pos, hasher)
+	logUC := login.NewLoginUserUC(log, pos, hasher, redis, idgen)
+	authUC := authenticate.NewGetUserIDBySessionUC(log, redis)
 
 	resthandl := resthandler.NewRestHandler(log, cfg.RestConf.CookieTTL, regUC, logUC)
 	grpchandl := grpchandler.NewGRPCHandler(log, authUC)
