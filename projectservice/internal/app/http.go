@@ -22,9 +22,9 @@ func mustLoadHttpServer(cfg *config.Config, log *slog.Logger, sessionValid sessi
 	router.Use(middleware.TimeoutMiddleware(cfg.RestConf.RequestTimeout))
 	handl := resthandler.NewHandler(log)
 
-	router.POST("/project/create", handl.CreateProject)
-	router.DELETE("/project/delete", handl.RemoveProject)
-	router.GET("/project/getall", handl.GetAllProjects)
+	router.POST("/project/create", handl.Create)
+	router.DELETE("/project/delete", handl.Delete)
+	router.GET("/project/getall", handl.GetAll)
 
 	serv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.RestConf.Port),
