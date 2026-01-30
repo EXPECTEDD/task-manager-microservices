@@ -46,5 +46,7 @@ func (c *CreateProjectUC) Execute(ctx context.Context, in *createmodel.CreatePro
 		return createmodel.NewCreateProjectOutput(false), err
 	}
 
+	log.Info("project created")
+
 	return createmodel.NewCreateProjectOutput(true), nil
 }
