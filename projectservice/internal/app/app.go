@@ -28,7 +28,7 @@ func NewApp() *App {
 	sessionValid := userserviceclient.NewUserServiceClient(log, cfg.ConnectionsConf.UserServConnConf.Host, cfg.ConnectionsConf.UserServConnConf.Port)
 	postgres := postgres.NewPostgres(db)
 
-	createProjectUC := createproject.NewCreateProject(log, postgres)
+	createProjectUC := createproject.NewCreateProjectUC(log, postgres)
 
 	handl := resthandler.NewHandler(log, createProjectUC)
 

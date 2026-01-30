@@ -16,7 +16,7 @@ type CreateProjectUC struct {
 	stor storage.Storage
 }
 
-func NewCreateProject(log *slog.Logger, stor storage.Storage) *CreateProjectUC {
+func NewCreateProjectUC(log *slog.Logger, stor storage.Storage) *CreateProjectUC {
 	return &CreateProjectUC{
 		log:  log,
 		stor: stor,

@@ -79,7 +79,7 @@ func TestCreateProject(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			createUC := NewCreateProject(log, storageMock)
+			createUC := NewCreateProjectUC(log, storageMock)
 
 			out, err := createUC.Execute(context.Background(), tt.createInput)
 			assert.Equal(t, tt.expErr, err)
