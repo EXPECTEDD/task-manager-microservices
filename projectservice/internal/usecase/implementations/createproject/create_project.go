@@ -13,10 +13,10 @@ import (
 type CreateProjectUC struct {
 	log *slog.Logger
 
-	stor storage.StorageRepo
+	stor storage.Storage
 }
 
-func NewCreateProject(log *slog.Logger, stor storage.StorageRepo) *CreateProjectUC {
+func NewCreateProject(log *slog.Logger, stor storage.Storage) *CreateProjectUC {
 	return &CreateProjectUC{
 		log:  log,
 		stor: stor,
