@@ -77,10 +77,7 @@ func TestSessionAuthMiddleware(t *testing.T) {
 				ctx.JSON(http.StatusOK, "ok")
 			})
 
-			serv := httptest.NewServer(router)
-			defer serv.Close()
-
-			req, err := http.NewRequest(http.MethodGet, serv.URL+"/test", nil)
+			req, err := http.NewRequest(http.MethodGet, "/test", nil)
 			assert.NoError(t, err)
 
 			req.AddCookie(&http.Cookie{
