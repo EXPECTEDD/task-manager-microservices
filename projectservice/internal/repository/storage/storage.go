@@ -7,4 +7,5 @@ import (
 
 type Storage interface {
 	Save(ctx context.Context, proj *projectdomain.ProjectDomain) error
+	Delete(ctx context.Context, proj *projectdomain.ProjectDomain) error
 }
