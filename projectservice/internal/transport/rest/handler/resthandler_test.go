@@ -133,7 +133,7 @@ func TestRestHandler_Create(t *testing.T) {
 			client.EXPECT().GetIdBySession(gomock.Any(), tt.sessionId).
 				Return(tt.userId, nil)
 
-			handl := NewHandler(log, createUC)
+			handl := NewHandler(log, createUC, nil)
 
 			router := gin.New()
 			router.Use(middleware.GetSessionMiddleware(log))
