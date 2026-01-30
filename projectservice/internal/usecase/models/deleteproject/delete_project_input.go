@@ -1,11 +1,13 @@
 package deletemodel
 
 type DeleteProjectInput struct {
-	Name string
+	OwnerId uint32
+	Name    string
 }
 
-func NewDeleteProjectInput(name string) *DeleteProjectInput {
+func NewDeleteProjectInput(ownerId uint32, name string) *DeleteProjectInput {
 	return &DeleteProjectInput{
-		Name: name,
+		OwnerId: ownerId,
+		Name:    name,
 	}
 }
