@@ -16,7 +16,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-//go:generate mockgen -source=./../../../repository/storage/storage.go -destination=./mocks/storage_mock.go -package=createmocks
+//go:generate mockgen -source=./../../../repository/storage/storage.go -destination=./mocks/mock_storage.go -package=createmocks
 func TestCreateProject(t *testing.T) {
 	tests := []struct {
 		testName string
