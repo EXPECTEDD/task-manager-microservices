@@ -20,7 +20,7 @@ func TestCreate_Success_Integration(t *testing.T) {
 		"name": uniqueProjectName(),
 	}
 
-	resp := createResponse(t, sessionId, body)
+	resp := createGetResponse(t, sessionId, body)
 	defer resp.Body.Close()
 
 	var respBody struct {
@@ -43,7 +43,7 @@ func TestCreate_MissingFieldName_Integration(t *testing.T) {
 		"nam": uniqueProjectName(),
 	}
 
-	resp := createResponse(t, sessionId, body)
+	resp := createGetResponse(t, sessionId, body)
 	defer resp.Body.Close()
 
 	var respBody struct {
@@ -66,7 +66,7 @@ func TestCreate_IvalidName_Integration(t *testing.T) {
 		"name": strings.Repeat(uniqueProjectName(), 300),
 	}
 
-	resp := createResponse(t, sessionId, body)
+	resp := createGetResponse(t, sessionId, body)
 	defer resp.Body.Close()
 
 	var respBody struct {
@@ -89,9 +89,9 @@ func TestCreate_AlreadyExists_Integration(t *testing.T) {
 		"name": uniqueProjectName(),
 	}
 
-	resp := createResponse(t, sessionId, body)
+	resp := createGetResponse(t, sessionId, body)
 	resp.Body.Close()
-	resp = createResponse(t, sessionId, body)
+	resp = createGetResponse(t, sessionId, body)
 	defer resp.Body.Close()
 
 	var respBody struct {
@@ -106,7 +106,7 @@ func TestCreate_AlreadyExists_Integration(t *testing.T) {
 	require.Equal(t, expStatusCode, resp.StatusCode)
 }
 
-func createResponse(t *testing.T, sessionId string, body map[string]string) *http.Response {
+func createGetResponse(t *testing.T, sessionId string, body map[string]string) *http.Response {
 	b, err := json.Marshal(body)
 	require.NoError(t, err)
 
