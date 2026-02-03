@@ -21,7 +21,7 @@ func NewRestServer(log *slog.Logger, serv *http.Server) *RestServer {
 
 func (r *RestServer) MustStart() {
 	const op = "rest.MustStart"
-	r.log.Info("starting the server", slog.String("op", op), slog.String("port", r.serv.Addr))
+	r.log.Info("starting http server", slog.String("op", op), slog.String("port", r.serv.Addr))
 
 	if err := r.serv.ListenAndServe(); err != nil {
 		if !errors.Is(http.ErrServerClosed, err) {
@@ -32,7 +32,7 @@ func (r *RestServer) MustStart() {
 
 func (r *RestServer) Stop(ctx context.Context) {
 	const op = "rest.Stop"
-	r.log.Info("start server shutdown", slog.String("op", op))
+	r.log.Info("start http server shutdown", slog.String("op", op))
 	r.serv.Shutdown(ctx)
-	r.log.Info("server stopped", slog.String("op", op))
+	r.log.Info("http server stopped", slog.String("op", op))
 }
