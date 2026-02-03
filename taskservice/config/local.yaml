@@ -1,0 +1,30 @@
+type: local
+
+restapi:
+  port: 44048
+  write_timeout: 20s
+  read_timeout: 10s
+  shutdown_timeout: 10s
+  request_timeout: 15s
+  mode: debug
+
+grpc:
+  port: 44049
+  timeout: 30s
+
+connections:
+  userservice:
+    host: localhost
+    port: 44045
+    response_timeout: 5s
+
+postgres:
+  host: localhost
+  port: 5432
+  user: app_user
+  db_name: tasks
+  #password in .env file
+  sslmode: disable
+
+logger:
+  level: debug
