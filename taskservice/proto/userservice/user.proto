@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package userserviceproto;
+
+option go_package = "./;userservicev1";
+
+service UserService {
+    rpc GetIdBySession (GetIdBySessionRequest) returns (GetIdBySessionResponse);
+}
+
+message GetIdBySessionRequest {
+    string sessionId = 1;
+}
+
+message GetIdBySessionResponse {
+    uint32 userId = 1;
+}
