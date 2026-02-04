@@ -1,3 +1,6 @@
+build_proto:
+	protoc --go_out=./proto/userservice --go_opt=paths=import --go-grpc_out=./proto/userservice --go-grpc_opt=paths=import ./proto/userservice/user.proto
+
 local:
 	set -a; \
 	. ./.env; \
