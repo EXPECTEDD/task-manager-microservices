@@ -25,6 +25,7 @@ func mustLoadRestServer(cfg *config.Config, log *slog.Logger, handl *resthandler
 	router.DELETE("task/delete", handl.Delete)
 	router.GET("/task/getall", handl.GetAll)
 	router.PATCH("/task/change", handl.Change)
+	router.GET("/task/get", handl.Get)
 
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.RestConf.Port),
