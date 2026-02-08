@@ -42,17 +42,17 @@ func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 }
 
 // Delete mocks base method.
-func (m *MockStorage) Delete(ctx context.Context, projectId uint32) error {
+func (m *MockStorage) Delete(ctx context.Context, ownerId, projectId uint32) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, projectId)
+	ret := m.ctrl.Call(m, "Delete", ctx, ownerId, projectId)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockStorageMockRecorder) Delete(ctx, projectId any) *gomock.Call {
+func (mr *MockStorageMockRecorder) Delete(ctx, ownerId, projectId any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStorage)(nil).Delete), ctx, projectId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStorage)(nil).Delete), ctx, ownerId, projectId)
 }
 
 // GetAll mocks base method.
