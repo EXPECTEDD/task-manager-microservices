@@ -19,29 +19,29 @@ func TestPostgres_Save(t *testing.T) {
 
 		proj *projectdomain.ProjectDomain
 
-		returnLastId       int64
-		returnRowsAffected int64
-		returnErr          error
-		expErr             error
+		returnRows sqlmock.Rows
+		returnErr  error
+		expErr     error
+		expId      uint32
 	}{
 		{
 			testName: "Success",
 
 			proj: &projectdomain.ProjectDomain{OwnerId: 1, Name: "Name"},
 
-			returnLastId:       1,
-			returnRowsAffected: 1,
-			returnErr:          nil,
-			expErr:             nil,
+			returnRows: *sqlmock.NewRows([]string{"id"}).AddRow(1),
+			returnErr:  nil,
+			expErr:     nil,
+			expId:      1,
 		}, {
 			testName: "Already exists",
 
 			proj: &projectdomain.ProjectDomain{OwnerId: 1, Name: "Name"},
 
-			returnLastId:       1,
-			returnRowsAffected: 1,
-			returnErr:          &pq.Error{Code: "23505"},
-			expErr:             storage.ErrAlreadyExists,
+			returnRows: *sqlmock.NewRows([]string{"id"}).AddRow(0),
+			returnErr:  &pq.Error{Code: "23505"},
+			expErr:     storage.ErrAlreadyExists,
+			expId:      0,
 		},
 	}
 
@@ -51,14 +51,15 @@ func TestPostgres_Save(t *testing.T) {
 			assert.NoError(t, err)
 			defer db.Close()
 
-			mock.ExpectExec(regexp.QuoteMeta(QuerieSave)).
+			mock.ExpectQuery(regexp.QuoteMeta(QuerieSave)).
 				WithArgs(tt.proj.OwnerId, tt.proj.Name).
 				WillReturnError(tt.returnErr).
-				WillReturnResult(sqlmock.NewResult(tt.returnLastId, tt.returnRowsAffected))
+				WillReturnRows(&tt.returnRows)
 
 			postgres := NewPostgres(db)
-			err = postgres.Save(context.Background(), tt.proj)
+			id, err := postgres.Save(context.Background(), tt.proj)
 			assert.Equal(t, tt.expErr, err)
+			assert.Equal(t, tt.expId, id)
 		})
 	}
 }
@@ -67,10 +68,7 @@ func TestPostgres_Delete(t *testing.T) {
 	tests := []struct {
 		testName string
 
-		proj *projectdomain.ProjectDomain
-
-		ownerId     uint32
-		name        string
+		projectId   uint32
 		rowAffected int64
 		returnErr   error
 
@@ -79,10 +77,7 @@ func TestPostgres_Delete(t *testing.T) {
 		{
 			testName: "Success",
 
-			proj: &projectdomain.ProjectDomain{OwnerId: 1, Name: "Name"},
-
-			ownerId:     1,
-			name:        "Name",
+			projectId:   1,
 			rowAffected: 1,
 			returnErr:   nil,
 
@@ -90,10 +85,7 @@ func TestPostgres_Delete(t *testing.T) {
 		}, {
 			testName: "Not found",
 
-			proj: &projectdomain.ProjectDomain{OwnerId: 1, Name: "Name"},
-
-			ownerId:     1,
-			name:        "Name",
+			projectId:   1,
 			rowAffected: 0,
 			returnErr:   nil,
 
@@ -108,12 +100,12 @@ func TestPostgres_Delete(t *testing.T) {
 			defer db.Close()
 
 			mock.ExpectExec(regexp.QuoteMeta(QuerieDelete)).
-				WithArgs(tt.ownerId, tt.name).
+				WithArgs(tt.projectId).
 				WillReturnResult(sqlmock.NewResult(1, tt.rowAffected)).
 				WillReturnError(tt.returnErr)
 
 			postgres := NewPostgres(db)
-			err = postgres.Delete(context.Background(), tt.proj)
+			err = postgres.Delete(context.Background(), tt.projectId)
 			assert.Equal(t, tt.expErr, err)
 		})
 	}
