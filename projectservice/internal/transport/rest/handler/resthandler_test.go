@@ -44,7 +44,7 @@ func TestRestHandler_Create(t *testing.T) {
 		contentType string
 		body        map[string]string
 
-		expResp       bool
+		expResp       uint32
 		expStatusCode int
 	}{
 		{
@@ -55,7 +55,7 @@ func TestRestHandler_Create(t *testing.T) {
 
 			expCreate:       true,
 			createInput:     createmodel.NewCreateProjectInput(1, "Name"),
-			createOutput:    createmodel.NewCreateProjectOutput(true),
+			createOutput:    createmodel.NewCreateProjectOutput(1),
 			createReturnErr: nil,
 
 			contentType: "application/json",
@@ -63,7 +63,7 @@ func TestRestHandler_Create(t *testing.T) {
 				"name": "Name",
 			},
 
-			expResp:       true,
+			expResp:       1,
 			expStatusCode: http.StatusOK,
 		}, {
 			testName: "Missing field name",
@@ -73,7 +73,7 @@ func TestRestHandler_Create(t *testing.T) {
 
 			expCreate:       false,
 			createInput:     createmodel.NewCreateProjectInput(1, "Name"),
-			createOutput:    createmodel.NewCreateProjectOutput(true),
+			createOutput:    createmodel.NewCreateProjectOutput(1),
 			createReturnErr: nil,
 
 			contentType: "application/json",
@@ -81,7 +81,7 @@ func TestRestHandler_Create(t *testing.T) {
 				"nme": "Name",
 			},
 
-			expResp:       false,
+			expResp:       0,
 			expStatusCode: http.StatusBadRequest,
 		}, {
 			testName: "Invalid name",
@@ -91,7 +91,7 @@ func TestRestHandler_Create(t *testing.T) {
 
 			expCreate:       true,
 			createInput:     createmodel.NewCreateProjectInput(1, strings.Repeat("Name", 300)),
-			createOutput:    createmodel.NewCreateProjectOutput(false),
+			createOutput:    createmodel.NewCreateProjectOutput(0),
 			createReturnErr: projectdomain.ErrInvalidName,
 
 			contentType: "application/json",
@@ -99,7 +99,7 @@ func TestRestHandler_Create(t *testing.T) {
 				"name": strings.Repeat("Name", 300),
 			},
 
-			expResp:       false,
+			expResp:       0,
 			expStatusCode: http.StatusBadRequest,
 		}, {
 			testName: "Already exists",
@@ -109,7 +109,7 @@ func TestRestHandler_Create(t *testing.T) {
 
 			expCreate:       true,
 			createInput:     createmodel.NewCreateProjectInput(1, "Name"),
-			createOutput:    createmodel.NewCreateProjectOutput(false),
+			createOutput:    createmodel.NewCreateProjectOutput(0),
 			createReturnErr: createerr.ErrAlreadyExists,
 
 			contentType: "application/json",
@@ -117,7 +117,7 @@ func TestRestHandler_Create(t *testing.T) {
 				"name": "Name",
 			},
 
-			expResp:       false,
+			expResp:       0,
 			expStatusCode: http.StatusConflict,
 		},
 	}
@@ -162,11 +162,11 @@ func TestRestHandler_Create(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			var respBody struct {
-				IsCreated bool `json:"is_created"`
+				ProjectId uint32 `json:"project_id"`
 			}
 
 			assert.NoError(t, json.NewDecoder(w.Body).Decode(&respBody))
-			assert.Equal(t, tt.expResp, respBody.IsCreated)
+			assert.Equal(t, tt.expResp, respBody.ProjectId)
 			assert.Equal(t, tt.expStatusCode, w.Result().StatusCode)
 		})
 	}
@@ -186,7 +186,7 @@ func TestRestHandler_Delete(t *testing.T) {
 
 		clientReturnErr error
 
-		body map[string]string
+		body map[string]uint32
 
 		expRespBody   bool
 		expStatusCode int
@@ -198,52 +198,33 @@ func TestRestHandler_Delete(t *testing.T) {
 			userId:    1,
 
 			expDelete:         true,
-			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, "Name"),
+			deleteUCInput:     deletemodel.NewDeleteProjectInput(1),
 			deleteUCOutput:    deletemodel.NewDeleteProjectOutput(true),
 			deleteUCReturnErr: nil,
 
 			clientReturnErr: nil,
 
-			body: map[string]string{
-				"name": "Name",
+			body: map[string]uint32{
+				"project_id": 1,
 			},
 
 			expRespBody:   true,
 			expStatusCode: http.StatusOK,
 		}, {
-			testName: "Missing field name",
+			testName: "Invalid project id",
 
 			sessionId: "sessionId",
 			userId:    1,
 
 			expDelete:         false,
-			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, "Name"),
-			deleteUCOutput:    deletemodel.NewDeleteProjectOutput(true),
-			deleteUCReturnErr: nil,
+			deleteUCInput:     deletemodel.NewDeleteProjectInput(0),
+			deleteUCOutput:    deletemodel.NewDeleteProjectOutput(false),
+			deleteUCReturnErr: deleteerr.ErrInvalidProjectId,
 
 			clientReturnErr: nil,
 
-			body: map[string]string{
-				"nam": "Name",
-			},
-
-			expRespBody:   false,
-			expStatusCode: http.StatusBadRequest,
-		}, {
-			testName: "Invalid name",
-
-			sessionId: "sessionId",
-			userId:    1,
-
-			expDelete:         true,
-			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, strings.Repeat("Name", 300)),
-			deleteUCOutput:    deletemodel.NewDeleteProjectOutput(true),
-			deleteUCReturnErr: projectdomain.ErrInvalidName,
-
-			clientReturnErr: nil,
-
-			body: map[string]string{
-				"name": strings.Repeat("Name", 300),
+			body: map[string]uint32{
+				"project_id": 0,
 			},
 
 			expRespBody:   false,
@@ -255,14 +236,14 @@ func TestRestHandler_Delete(t *testing.T) {
 			userId:    1,
 
 			expDelete:         true,
-			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, "Name"),
+			deleteUCInput:     deletemodel.NewDeleteProjectInput(1),
 			deleteUCOutput:    deletemodel.NewDeleteProjectOutput(true),
 			deleteUCReturnErr: deleteerr.ErrProjectNotFound,
 
 			clientReturnErr: nil,
 
-			body: map[string]string{
-				"name": "Name",
+			body: map[string]uint32{
+				"project_id": 1,
 			},
 
 			expRespBody:   false,
