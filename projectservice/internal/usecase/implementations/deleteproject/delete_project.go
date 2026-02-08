@@ -33,7 +33,7 @@ func (d *DeleteProjectUC) Execute(ctx context.Context, in *deletemodel.DeletePro
 		return deletemodel.NewDeleteProjectOutput(false), deleteerr.ErrInvalidProjectId
 	}
 
-	err := d.stor.Delete(ctx, in.ProjectId, in.OwnerId)
+	err := d.stor.Delete(ctx, in.OwnerId, in.ProjectId)
 	if err != nil {
 		if errors.Is(err, storage.ErrNotFound) {
 			log.Info("project not found")
