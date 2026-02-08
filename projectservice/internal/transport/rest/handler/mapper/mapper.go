@@ -15,12 +15,12 @@ func CreateRequestToInput(cr *createdto.CreateRequest, userId uint32) *createmod
 
 func CreateOutputToResponse(co *createmodel.CreateProjectOutput) *createdto.CreateResponse {
 	return &createdto.CreateResponse{
-		IsCreated: co.IsCreated,
+		ProjectId: co.ProjectId,
 	}
 }
 
-func DeleteRequestToInput(dr *deletedto.DeleteRequest, userId uint32) *deletemodel.DeleteProjectInput {
-	return deletemodel.NewDeleteProjectInput(userId, dr.Name)
+func DeleteRequestToInput(dr *deletedto.DeleteRequest) *deletemodel.DeleteProjectInput {
+	return deletemodel.NewDeleteProjectInput(dr.ProjectId)
 }
 
 func DeleteOutputToResponse(do *deletemodel.DeleteProjectOutput) *deletedto.DeleteResponse {
