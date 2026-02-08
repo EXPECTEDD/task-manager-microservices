@@ -68,6 +68,7 @@ func TestPostgres_Delete(t *testing.T) {
 	tests := []struct {
 		testName string
 
+		ownerId     uint32
 		projectId   uint32
 		rowAffected int64
 		returnErr   error
@@ -77,6 +78,7 @@ func TestPostgres_Delete(t *testing.T) {
 		{
 			testName: "Success",
 
+			ownerId:     1,
 			projectId:   1,
 			rowAffected: 1,
 			returnErr:   nil,
@@ -85,6 +87,7 @@ func TestPostgres_Delete(t *testing.T) {
 		}, {
 			testName: "Not found",
 
+			ownerId:     1,
 			projectId:   1,
 			rowAffected: 0,
 			returnErr:   nil,
@@ -100,12 +103,12 @@ func TestPostgres_Delete(t *testing.T) {
 			defer db.Close()
 
 			mock.ExpectExec(regexp.QuoteMeta(QuerieDelete)).
-				WithArgs(tt.projectId).
+				WithArgs(tt.projectId, tt.ownerId).
 				WillReturnResult(sqlmock.NewResult(1, tt.rowAffected)).
 				WillReturnError(tt.returnErr)
 
 			postgres := NewPostgres(db)
-			err = postgres.Delete(context.Background(), tt.projectId)
+			err = postgres.Delete(context.Background(), tt.projectId, tt.ownerId)
 			assert.Equal(t, tt.expErr, err)
 		})
 	}
