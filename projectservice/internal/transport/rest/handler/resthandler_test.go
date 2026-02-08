@@ -198,7 +198,7 @@ func TestRestHandler_Delete(t *testing.T) {
 			userId:    1,
 
 			expDelete:         true,
-			deleteUCInput:     deletemodel.NewDeleteProjectInput(1),
+			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, 1),
 			deleteUCOutput:    deletemodel.NewDeleteProjectOutput(true),
 			deleteUCReturnErr: nil,
 
@@ -217,7 +217,7 @@ func TestRestHandler_Delete(t *testing.T) {
 			userId:    1,
 
 			expDelete:         false,
-			deleteUCInput:     deletemodel.NewDeleteProjectInput(0),
+			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, 0),
 			deleteUCOutput:    deletemodel.NewDeleteProjectOutput(false),
 			deleteUCReturnErr: deleteerr.ErrInvalidProjectId,
 
@@ -236,7 +236,7 @@ func TestRestHandler_Delete(t *testing.T) {
 			userId:    1,
 
 			expDelete:         true,
-			deleteUCInput:     deletemodel.NewDeleteProjectInput(1),
+			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, 1),
 			deleteUCOutput:    deletemodel.NewDeleteProjectOutput(true),
 			deleteUCReturnErr: deleteerr.ErrProjectNotFound,
 
