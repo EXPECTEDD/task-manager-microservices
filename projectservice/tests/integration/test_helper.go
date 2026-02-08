@@ -106,7 +106,7 @@ func uniqueProjectName() string {
 	return fmt.Sprintf("Project-%s", uuid.NewString())
 }
 
-func createProject(t *testing.T, sessionId string, projName string) {
+func createProject(t *testing.T, sessionId string, projName string) uint32 {
 	body := map[string]string{
 		"name": projName,
 	}
@@ -141,13 +141,14 @@ func createProject(t *testing.T, sessionId string, projName string) {
 	defer resp.Body.Close()
 
 	var respBody struct {
-		IsCreated bool `json:"is_created"`
+		ProjectId uint32 `json:"project_id"`
 	}
 
-	expBody := true
 	expStatusCode := http.StatusOK
 
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&respBody))
-	require.Equal(t, expBody, respBody.IsCreated)
+	require.Greater(t, int(respBody.ProjectId), 0)
 	require.Equal(t, expStatusCode, resp.StatusCode)
+
+	return respBody.ProjectId
 }

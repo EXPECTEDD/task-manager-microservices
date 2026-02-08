@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -18,10 +17,10 @@ func TestDelete_Success_Integration(t *testing.T) {
 
 	projName := uniqueProjectName()
 
-	createProject(t, sessionId, projName)
+	projId := createProject(t, sessionId, projName)
 
-	body := map[string]string{
-		"name": "Name",
+	body := map[string]uint32{
+		"project_id": projId,
 	}
 
 	resp := deleteGetResponse(t, sessionId, body)
@@ -39,7 +38,7 @@ func TestDelete_Success_Integration(t *testing.T) {
 	require.Equal(t, expStatusCode, resp.StatusCode)
 }
 
-func TestDelete_MissingFieldName_Integration(t *testing.T) {
+func TestDelete_MissingFieldProjectId_Integration(t *testing.T) {
 	email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
@@ -47,35 +46,8 @@ func TestDelete_MissingFieldName_Integration(t *testing.T) {
 
 	createProject(t, sessionId, projName)
 
-	body := map[string]string{
-		"nam": "Name",
-	}
-
-	resp := deleteGetResponse(t, sessionId, body)
-	defer resp.Body.Close()
-
-	var respBody struct {
-		IsDeleted bool `json:"is_deleted"`
-	}
-
-	expBody := false
-	expStatusCode := http.StatusBadRequest
-
-	require.NoError(t, json.NewDecoder(resp.Body).Decode(&respBody))
-	require.Equal(t, expBody, respBody.IsDeleted)
-	require.Equal(t, expStatusCode, resp.StatusCode)
-}
-
-func TestDelete_InvalidName_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
-	sessionId := loginUser(t, email, pass)
-
-	projName := uniqueProjectName()
-
-	createProject(t, sessionId, projName)
-
-	body := map[string]string{
-		"name": strings.Repeat(projName, 300),
+	body := map[string]uint32{
+		"proj_id": 1,
 	}
 
 	resp := deleteGetResponse(t, sessionId, body)
@@ -97,8 +69,8 @@ func TestDelete_NotFound_Integration(t *testing.T) {
 	email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
-	body := map[string]string{
-		"name": "Name",
+	body := map[string]uint32{
+		"project_id": 1,
 	}
 
 	resp := deleteGetResponse(t, sessionId, body)
@@ -116,7 +88,7 @@ func TestDelete_NotFound_Integration(t *testing.T) {
 	require.Equal(t, expStatusCode, resp.StatusCode)
 }
 
-func deleteGetResponse(t *testing.T, sessionId string, body map[string]string) *http.Response {
+func deleteGetResponse(t *testing.T, sessionId string, body map[string]uint32) *http.Response {
 	b, err := json.Marshal(body)
 	require.NoError(t, err)
 

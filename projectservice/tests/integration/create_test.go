@@ -24,14 +24,13 @@ func TestCreate_Success_Integration(t *testing.T) {
 	defer resp.Body.Close()
 
 	var respBody struct {
-		IsCreated bool `json:"is_created"`
+		ProjectId uint32 `json:"project_id"`
 	}
 
-	expBody := true
 	expStatusCode := http.StatusOK
 
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&respBody))
-	require.Equal(t, expBody, respBody.IsCreated)
+	require.Greater(t, int(respBody.ProjectId), 0)
 	require.Equal(t, expStatusCode, resp.StatusCode)
 }
 
@@ -47,14 +46,14 @@ func TestCreate_MissingFieldName_Integration(t *testing.T) {
 	defer resp.Body.Close()
 
 	var respBody struct {
-		IsCreated bool `json:"is_created"`
+		ProjectId uint32 `json:"project_id"`
 	}
 
-	expBody := false
+	var expBody uint32 = 0
 	expStatusCode := http.StatusBadRequest
 
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&respBody))
-	require.Equal(t, expBody, respBody.IsCreated)
+	require.Equal(t, expBody, respBody.ProjectId)
 	require.Equal(t, expStatusCode, resp.StatusCode)
 }
 
