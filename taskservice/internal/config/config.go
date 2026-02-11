@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/goccy/go-yaml"
@@ -94,7 +95,34 @@ func loadSecrets(cfg *Config) {
 			panic("PostgresConfig password field empty, (DB_PASS)")
 		}
 	} else if cfg.Type == dockerType {
-
+		cfg.PostgresConf.User = os.Getenv("DB_USER")
+		if cfg.PostgresConf.User == "" {
+			panic("PostgresConfig user filed empty, (DB_USER)")
+		}
+		cfg.PostgresConf.Password = os.Getenv("DB_PASS")
+		if cfg.PostgresConf.Password == "" {
+			panic("PostgresConfig password filed empty, (DB_PASS)")
+		}
+		cfg.PostgresConf.Host = os.Getenv("DB_HOST")
+		if cfg.PostgresConf.Host == "" {
+			panic("PostgresConfig host field empty, (DB_HOST)")
+		}
+		port, err := strconv.Atoi(os.Getenv("DB_PORT"))
+		if err != nil {
+			panic("DB_PORT: " + err.Error())
+		}
+		if port == 0 {
+			panic("PostgresConfig port filed empty, (DB_PORT)")
+		}
+		cfg.PostgresConf.Port = uint32(port)
+		cfg.PostgresConf.DbName = os.Getenv("DB_NAME")
+		if cfg.PostgresConf.DbName == "" {
+			panic("PostgresConfig db name filed empty, (DB_NAME)")
+		}
+		cfg.PostgresConf.Sslmode = os.Getenv("DB_MODE")
+		if cfg.PostgresConf.Sslmode == "" {
+			panic("PostgresConfig sslmode filed empty, (DB_MODE)")
+		}
 	}
 }
 
