@@ -15,7 +15,7 @@ func grpcErrorToHttp(err error) (int, string) {
 
 	switch s.Code() {
 	case codes.NotFound:
-		return http.StatusNotFound, "not found"
+		return http.StatusNotFound, "user not found"
 	case codes.Internal:
 		return http.StatusBadGateway, "upstream error"
 	default:
