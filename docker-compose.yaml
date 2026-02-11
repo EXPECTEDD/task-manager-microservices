@@ -24,7 +24,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  
+
+  taskservice_postgres:
+    image: postgres:latest
+    container_name: taskservice_postgres_container
+    environment:
+      - POSTGRES_USER=${TS_DB_USER}
+      - POSTGRES_PASSWORD=${TS_DB_PASS}
+      - POSTGRES_DB=${TS_DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TS_DB_USER} -d ${TS_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7
     container_name: redis_container
@@ -61,6 +74,19 @@ services:
     command: >
       -path /migrations
       -database postgres://${PS_DB_USER}:${PS_DB_PASS}@${PS_DB_HOST}:${PS_DB_PORT}/${PS_DB_NAME}?sslmode=${PS_DB_MODE}
+      up
+
+  taskservice_migrator:
+    image: migrate/migrate
+    container_name: taskservice_migrator_container
+    depends_on:
+      taskservice_postgres:
+        condition: service_healthy
+    volumes:
+      - ./taskservice/migrations:/migrations
+    command: >
+      -path /migrations
+      -database postgres://${TS_DB_USER}:${TS_DB_PASS}@${TS_DB_HOST}:${TS_DB_PORT}/${TS_DB_NAME}?sslmode=${TS_DB_MODE}
       up
 
   userservice:
@@ -109,3 +135,22 @@ services:
       - 44047:44047
     volumes:
       - ./projectservice/config:/app/config
+
+  taskservice:
+    build: ./taskservice/
+    container_name: taskservice_container
+    environment:
+      - CONFIG=/app/config/docker.yaml
+      - DB_HOST=${TS_DB_HOST}
+      - DB_PORT=${TS_DB_PORT}
+      - DB_USER=${TS_DB_USER}
+      - DB_NAME=${TS_DB_NAME}
+      - DB_PASS=${TS_DB_PASS}
+      - DB_MODE=${TS_DB_MODE}
+    depends_on:
+      taskservice_migrator:
+        condition: service_completed_successfully
+    ports:
+      - 44048:44048
+    volumes:
+      - ./taskservice/config:/app/config
