@@ -4,9 +4,11 @@ import (
 	createdto "projectservice/internal/transport/rest/handler/dto/create"
 	deletedto "projectservice/internal/transport/rest/handler/dto/delete"
 	getalldto "projectservice/internal/transport/rest/handler/dto/getall"
+	updatedto "projectservice/internal/transport/rest/handler/dto/update"
 	createmodel "projectservice/internal/usecase/models/createproject"
 	deletemodel "projectservice/internal/usecase/models/deleteproject"
 	getallmodel "projectservice/internal/usecase/models/getallprojects"
+	updatemodel "projectservice/internal/usecase/models/updateproject"
 )
 
 func CreateRequestToInput(cr *createdto.CreateRequest, userId uint32) *createmodel.CreateProjectInput {
@@ -32,5 +34,19 @@ func DeleteOutputToResponse(do *deletemodel.DeleteProjectOutput) *deletedto.Dele
 func GetAllOutputToResponse(gao *getallmodel.GetAllProjectsOutput) *getalldto.GetAllResponse {
 	return &getalldto.GetAllResponse{
 		Projects: gao.Projects,
+	}
+}
+
+func UpdateRequestToInput(ownerId uint32, projectId uint32, ur *updatedto.UpdateRequest) *updatemodel.UpdateProjectInput {
+	return updatemodel.NewUpdateProjectInput(
+		ownerId,
+		projectId,
+		ur.NewName,
+	)
+}
+
+func UpdateOutputToResponse(uo *updatemodel.UpdateProjectOutput) *updatedto.UpdateResponse {
+	return &updatedto.UpdateResponse{
+		IsUpdated: uo.IsUpdated,
 	}
 }
