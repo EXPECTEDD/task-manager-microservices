@@ -24,6 +24,7 @@ func mustLoadHttpServer(cfg *config.Config, log *slog.Logger, handl *resthandler
 	router.POST("/project/create", handl.Create)
 	router.DELETE("/project/delete", handl.Delete)
 	router.GET("/project/getall", handl.GetAll)
+	router.PATCH("/project/update/:project_id", handl.Update)
 
 	serv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.RestConf.Port),
