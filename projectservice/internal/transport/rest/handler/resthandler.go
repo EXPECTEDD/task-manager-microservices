@@ -234,12 +234,14 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid project_id type",
 		})
+		return
 	}
-	if uint32(projectId) == 0 {
+	if projectId <= 0 {
 		log.Error("invalid project_id")
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid project_id value",
 		})
+		return
 	}
 
 	log.Info("starting updated request")
