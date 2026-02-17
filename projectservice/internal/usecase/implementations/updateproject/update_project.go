@@ -30,7 +30,7 @@ func (u *UpdateProjectUC) Execute(ctx context.Context, in *updatemodel.UpdatePro
 	log.Info("starting update project")
 
 	rNewName := []rune(*in.NewName)
-	if len(rNewName) > 255 {
+	if len(rNewName) > 255 || len(rNewName) == 0 {
 		return updatemodel.NewUpdateProjectOutput(false), updateerr.ErrInvalidName
 	}
 
