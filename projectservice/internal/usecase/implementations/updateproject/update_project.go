@@ -29,12 +29,12 @@ func (u *UpdateProjectUC) Execute(ctx context.Context, in *updatemodel.UpdatePro
 
 	log.Info("starting update project")
 
-	rNewName := []rune(*in.NewName)
-	if len(rNewName) > 255 || len(rNewName) == 0 {
-		return updatemodel.NewUpdateProjectOutput(false), updateerr.ErrInvalidName
-	}
-
 	if in.NewName != nil {
+		rNewName := []rune(*in.NewName)
+		if len(rNewName) > 255 || len(rNewName) == 0 {
+			return updatemodel.NewUpdateProjectOutput(false), updateerr.ErrInvalidName
+		}
+
 		err := u.stor.UpdateName(ctx, in.OwnerId, in.ProjectId, *in.NewName)
 		if err != nil {
 			if errors.Is(err, storage.ErrNotFound) {
