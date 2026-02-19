@@ -19,6 +19,7 @@ var (
 	urlCreate       = "http://localhost:44046/project/create"
 	urlDelete       = "http://localhost:44046/project/delete"
 	urlGetAll       = "http://localhost:44046/project/getall"
+	urlUpdate       = "http://localhost:44046/project/update"
 )
 
 const (
