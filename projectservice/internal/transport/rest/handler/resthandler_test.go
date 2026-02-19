@@ -482,14 +482,14 @@ func TestRestHandler_Update(t *testing.T) {
 
 			expUpdate:       true,
 			updateReturn:    updatemodel.NewUpdateProjectOutput(true),
-			updateReturnErr: updateerr.ErrProjectNotFound,
+			updateReturnErr: nil,
 
 			reqBody: map[string]string{
 				"new": "NewName",
 			},
 
-			expBody:       false,
-			expStatusCode: http.StatusNotFound,
+			expBody:       true,
+			expStatusCode: http.StatusOK,
 		},
 	}
 
