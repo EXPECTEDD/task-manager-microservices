@@ -6,7 +6,6 @@ import (
 	"net/http"
 	projectdomain "projectservice/internal/domain/project"
 	createdto "projectservice/internal/transport/rest/handler/dto/create"
-	deletedto "projectservice/internal/transport/rest/handler/dto/delete"
 	updatedto "projectservice/internal/transport/rest/handler/dto/update"
 	handlmapper "projectservice/internal/transport/rest/handler/mapper"
 	handlvalidator "projectservice/internal/transport/rest/handler/validator"
@@ -126,25 +125,26 @@ func (h *RestHandler) Delete(ctx *gin.Context) {
 
 	log := h.log.With(slog.String("op", op), slog.Int("userId", int(userId)))
 
-	log.Info("starting delete request")
-
-	var req *deletedto.DeleteRequest
-
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Warn("error with request data", slog.String("error", err.Error()))
-		if errMap, ok := handlvalidator.MapValidationErrors(err); ok {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"errors": errMap,
-			})
-		} else {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "bad request body",
-			})
-		}
+	projcetIdStr := ctx.Param("project_id")
+	projectId, err := strconv.Atoi(projcetIdStr)
+	if err != nil {
+		log.Error("project_id in context has invalid type")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid project_id type",
+		})
+		return
+	}
+	if projectId <= 0 {
+		log.Error("invalid project_id")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid project_id value",
+		})
 		return
 	}
 
-	in := handlmapper.DeleteRequestToInput(req, userId)
+	log.Info("starting delete request")
+
+	in := handlmapper.DeleteRequestToInput(userId, uint32(projectId))
 
 	out, err := h.deleteProjUC.Execute(ctx, in)
 	if err != nil {
@@ -227,8 +227,8 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 
 	log := h.log.With(slog.String("op", op), slog.Int("userId", int(userId)))
 
-	projectIdVar := ctx.Param("project_id")
-	projectId, err := strconv.Atoi(projectIdVar)
+	projectIdStr := ctx.Param("project_id")
+	projectId, err := strconv.Atoi(projectIdStr)
 	if err != nil {
 		log.Error("project_id in context has invalid type")
 		ctx.JSON(http.StatusBadRequest, gin.H{
