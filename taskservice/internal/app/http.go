@@ -16,16 +16,19 @@ import (
 func mustLoadRestServer(cfg *config.Config, log *slog.Logger, handl *resthandler.RestHandler, sessionValid sessionvalidator.SessionValidator) *rest.RestServer {
 	gin.SetMode(cfg.RestConf.Mode)
 	router := gin.New()
-	router.Use(gin.Recovery())
-	router.Use(middleware.GetSessionMiddleware(log))
-	router.Use(middleware.SessionAuthMiddleware(log, sessionValid, cfg.ConnectionsConf.UserServConnConf.ResponseTimeout))
-	router.Use(middleware.TimeoutMiddleware(cfg.RestConf.RequestTimeout))
 
-	router.POST("/task/create", handl.Create)
-	router.DELETE("task/delete", handl.Delete)
-	router.GET("/task/getall/:project_id", handl.GetAll)
-	router.PATCH("/task/update/:task_id", handl.Update)
-	router.GET("/task/get/:task_id", handl.Get)
+	group := router.Group("/")
+
+	group.Use(gin.Recovery())
+	group.Use(middleware.GetSessionMiddleware(log))
+	group.Use(middleware.SessionAuthMiddleware(log, sessionValid, cfg.ConnectionsConf.UserServConnConf.ResponseTimeout))
+	group.Use(middleware.TimeoutMiddleware(cfg.RestConf.RequestTimeout))
+
+	group.POST("/task/create", handl.Create)
+	group.DELETE("task/delete", handl.Delete)
+	group.GET("/task/getall/:project_id", handl.GetAll)
+	group.PATCH("/task/update/:task_id", handl.Update)
+	group.GET("/task/get/:task_id", handl.Get)
 
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.RestConf.Port),
