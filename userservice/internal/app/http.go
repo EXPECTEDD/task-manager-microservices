@@ -16,12 +16,15 @@ func mustLoadHttpServer(cfg *config.Config, log *slog.Logger, handl *resthandler
 	// GIN SETTINGS
 	gin.SetMode(cfg.RestConf.Mode)
 	router := gin.New()
-	router.Use(middleware.TimeoutMiddleware(cfg.RestConf.RequestTimeout))
-	router.Use(gin.Recovery())
+
+	group := router.Group("/")
+
+	group.Use(middleware.TimeoutMiddleware(cfg.RestConf.RequestTimeout))
+	group.Use(gin.Recovery())
 
 	// REGISTER HTTP ROUTES
-	router.POST("/user/registration", handl.Registration)
-	router.POST("/user/login", handl.Login)
+	group.POST("/user/registration", handl.Registration)
+	group.POST("/user/login", handl.Login)
 
 	// SERVER SETTING
 	serv := &http.Server{
