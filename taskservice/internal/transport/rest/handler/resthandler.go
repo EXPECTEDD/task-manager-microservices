@@ -86,7 +86,7 @@ func (h *RestHandler) GetAll(ctx *gin.Context) {
 	panic("not implemented")
 }
 
-func (h *RestHandler) ChangeDescription(ctx *gin.Context) {
+func (h *RestHandler) Update(ctx *gin.Context) {
 	panic("not implemented")
 }
 
