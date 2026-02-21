@@ -182,6 +182,7 @@ func TestRestHandler_Delete(t *testing.T) {
 
 		sessionId string
 		userId    uint32
+		projectId uint32
 
 		expDelete         bool
 		deleteUCInput     *deletemodel.DeleteProjectInput
@@ -200,6 +201,7 @@ func TestRestHandler_Delete(t *testing.T) {
 
 			sessionId: "sessionId",
 			userId:    1,
+			projectId: 1,
 
 			expDelete:         true,
 			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, 1),
@@ -208,10 +210,6 @@ func TestRestHandler_Delete(t *testing.T) {
 
 			clientReturnErr: nil,
 
-			body: map[string]uint32{
-				"project_id": 1,
-			},
-
 			expRespBody:   true,
 			expStatusCode: http.StatusOK,
 		}, {
@@ -219,6 +217,7 @@ func TestRestHandler_Delete(t *testing.T) {
 
 			sessionId: "sessionId",
 			userId:    1,
+			projectId: 0,
 
 			expDelete:         false,
 			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, 0),
@@ -227,10 +226,6 @@ func TestRestHandler_Delete(t *testing.T) {
 
 			clientReturnErr: nil,
 
-			body: map[string]uint32{
-				"project_id": 0,
-			},
-
 			expRespBody:   false,
 			expStatusCode: http.StatusBadRequest,
 		}, {
@@ -238,6 +233,7 @@ func TestRestHandler_Delete(t *testing.T) {
 
 			sessionId: "sessionId",
 			userId:    1,
+			projectId: 1,
 
 			expDelete:         true,
 			deleteUCInput:     deletemodel.NewDeleteProjectInput(1, 1),
@@ -245,10 +241,6 @@ func TestRestHandler_Delete(t *testing.T) {
 			deleteUCReturnErr: deleteerr.ErrProjectNotFound,
 
 			clientReturnErr: nil,
-
-			body: map[string]uint32{
-				"project_id": 1,
-			},
 
 			expRespBody:   false,
 			expStatusCode: http.StatusNotFound,
@@ -279,12 +271,10 @@ func TestRestHandler_Delete(t *testing.T) {
 			router.Use(middleware.GetSessionMiddleware(log))
 			router.Use(middleware.SessionAuthMiddleware(log, client, 10*time.Second))
 
-			router.DELETE("/test", handl.Delete)
+			router.DELETE("/test/:project_id", handl.Delete)
 
-			b, err := json.Marshal(tt.body)
+			req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/test/%d", tt.projectId), nil)
 			require.NoError(t, err)
-
-			req, err := http.NewRequest(http.MethodDelete, "/test", bytes.NewReader(b))
 
 			c := &http.Cookie{
 				Name:  "sessionId",
