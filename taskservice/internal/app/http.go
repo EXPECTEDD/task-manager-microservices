@@ -25,7 +25,7 @@ func mustLoadRestServer(cfg *config.Config, log *slog.Logger, handl *resthandler
 	group.Use(middleware.TimeoutMiddleware(cfg.RestConf.RequestTimeout))
 
 	group.POST("/task/create", handl.Create)
-	group.DELETE("task/delete", handl.Delete)
+	group.DELETE("task/delete/:task_id", handl.Delete)
 	group.GET("/task/getall/:project_id", handl.GetAll)
 	group.PATCH("/task/update/:task_id", handl.Update)
 	group.GET("/task/get/:task_id", handl.Get)
