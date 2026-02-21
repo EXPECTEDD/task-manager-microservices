@@ -1,11 +1,11 @@
 package integration
 
 import (
-	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -19,11 +19,7 @@ func TestDelete_Success_Integration(t *testing.T) {
 
 	projId := createProject(t, sessionId, projName)
 
-	body := map[string]uint32{
-		"project_id": projId,
-	}
-
-	resp := deleteGetResponse(t, sessionId, body)
+	resp := deleteGetResponse(t, sessionId, projId)
 	defer resp.Body.Close()
 
 	var respBody struct {
@@ -38,42 +34,13 @@ func TestDelete_Success_Integration(t *testing.T) {
 	require.Equal(t, expStatusCode, resp.StatusCode)
 }
 
-func TestDelete_MissingFieldProjectId_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
-	sessionId := loginUser(t, email, pass)
-
-	projName := uniqueProjectName()
-
-	createProject(t, sessionId, projName)
-
-	body := map[string]uint32{
-		"proj_id": 1,
-	}
-
-	resp := deleteGetResponse(t, sessionId, body)
-	defer resp.Body.Close()
-
-	var respBody struct {
-		IsDeleted bool `json:"is_deleted"`
-	}
-
-	expBody := false
-	expStatusCode := http.StatusBadRequest
-
-	require.NoError(t, json.NewDecoder(resp.Body).Decode(&respBody))
-	require.Equal(t, expBody, respBody.IsDeleted)
-	require.Equal(t, expStatusCode, resp.StatusCode)
-}
-
 func TestDelete_NotFound_Integration(t *testing.T) {
 	email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
-	body := map[string]uint32{
-		"project_id": 1,
-	}
+	projectId := 1
 
-	resp := deleteGetResponse(t, sessionId, body)
+	resp := deleteGetResponse(t, sessionId, uint32(projectId))
 	defer resp.Body.Close()
 
 	var respBody struct {
@@ -88,10 +55,28 @@ func TestDelete_NotFound_Integration(t *testing.T) {
 	require.Equal(t, expStatusCode, resp.StatusCode)
 }
 
-func deleteGetResponse(t *testing.T, sessionId string, body map[string]uint32) *http.Response {
-	b, err := json.Marshal(body)
-	require.NoError(t, err)
+func TestDelete_InvalidProjectId_Integration(t *testing.T) {
+	email, pass := registrationUser(t)
+	sessionId := loginUser(t, email, pass)
 
+	projectId := 0
+
+	resp := deleteGetResponse(t, sessionId, uint32(projectId))
+	defer resp.Body.Close()
+
+	var respBody struct {
+		IsDeleted bool `json:"is_deleted"`
+	}
+
+	expBody := false
+	expStatusCode := http.StatusBadRequest
+
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&respBody))
+	require.Equal(t, expBody, respBody.IsDeleted)
+	require.Equal(t, expStatusCode, resp.StatusCode)
+}
+
+func deleteGetResponse(t *testing.T, sessionId string, projectId uint32) *http.Response {
 	jar, err := cookiejar.New(nil)
 	require.NoError(t, err)
 
@@ -111,7 +96,7 @@ func deleteGetResponse(t *testing.T, sessionId string, body map[string]uint32) *
 		Jar: jar,
 	}
 
-	req, err := http.NewRequest(http.MethodDelete, urlDelete, bytes.NewReader(b))
+	req, err := http.NewRequest(http.MethodDelete, urlDelete+"/"+strconv.Itoa(int(projectId)), nil)
 	require.NoError(t, err)
 
 	resp, err := client.Do(req)
