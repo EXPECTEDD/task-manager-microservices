@@ -24,7 +24,7 @@ func mustLoadRestServer(cfg *config.Config, log *slog.Logger, handl *resthandler
 	router.POST("/task/create", handl.Create)
 	router.DELETE("task/delete", handl.Delete)
 	router.GET("/task/getall/:project_id", handl.GetAll)
-	router.PATCH("/task/change/desription/:task_id", handl.ChangeDescription)
+	router.PATCH("/task/update/:task_id", handl.Update)
 	router.GET("/task/get/:task_id", handl.Get)
 
 	server := &http.Server{
