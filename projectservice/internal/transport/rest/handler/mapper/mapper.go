@@ -21,8 +21,8 @@ func CreateOutputToResponse(co *createmodel.CreateProjectOutput) *createdto.Crea
 	}
 }
 
-func DeleteRequestToInput(dr *deletedto.DeleteRequest, userId uint32) *deletemodel.DeleteProjectInput {
-	return deletemodel.NewDeleteProjectInput(userId, dr.ProjectId)
+func DeleteRequestToInput(userId uint32, projectId uint32) *deletemodel.DeleteProjectInput {
+	return deletemodel.NewDeleteProjectInput(userId, projectId)
 }
 
 func DeleteOutputToResponse(do *deletemodel.DeleteProjectOutput) *deletedto.DeleteResponse {
