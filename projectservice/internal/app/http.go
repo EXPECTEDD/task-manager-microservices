@@ -22,7 +22,7 @@ func mustLoadHttpServer(cfg *config.Config, log *slog.Logger, handl *resthandler
 	router.Use(middleware.TimeoutMiddleware(cfg.RestConf.RequestTimeout))
 
 	router.POST("/project/create", handl.Create)
-	router.DELETE("/project/delete", handl.Delete)
+	router.DELETE("/project/delete/:project_id", handl.Delete)
 	router.GET("/project/getall", handl.GetAll)
 	router.PATCH("/project/update/:project_id", handl.Update)
 
