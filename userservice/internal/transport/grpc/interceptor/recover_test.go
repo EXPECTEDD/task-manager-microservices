@@ -13,22 +13,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type HandlSuccess struct {
-}
-
-func (h *HandlSuccess) GetIdBySession(ctx context.Context, req *userservicev1.GetIdBySessionRequest) (*userservicev1.GetIdBySessionResponse, error) {
-	return &userservicev1.GetIdBySessionResponse{
-		UserId: 1,
-	}, nil
-}
-
-type HandlPanic struct {
-}
-
-func (h *HandlPanic) GetIdBySession(ctx context.Context, req *userservicev1.GetIdBySessionRequest) (*userservicev1.GetIdBySessionResponse, error) {
-	panic("panic")
-}
-
 func TestRecover(t *testing.T) {
 	log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
