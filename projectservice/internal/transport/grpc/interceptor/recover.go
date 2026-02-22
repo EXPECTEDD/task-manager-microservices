@@ -16,7 +16,7 @@ func RecoverInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor {
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (resp any, err error) {
-		defer func(){
+		defer func() {
 			if r := recover(); r != nil {
 				log.Error("request caused panic", slog.Any("panic", r))
 				resp = nil
