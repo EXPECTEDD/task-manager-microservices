@@ -34,6 +34,7 @@ type RestAPIConfig struct {
 }
 
 type GRPCConfig struct {
+	Host    string        `yaml:"host"`
 	Port    uint32        `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
 }

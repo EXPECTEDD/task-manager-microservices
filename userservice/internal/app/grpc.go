@@ -18,5 +18,5 @@ func mustLoadGRPCServer(cfg *config.Config, log *slog.Logger, handl userservicev
 		),
 	)
 
-	return grpcserv.NewGRPCServer(log, cfg.GrpcConf.Port, handl, serv)
+	return grpcserv.NewGRPCServer(log, handl, serv, cfg.GrpcConf.Host, cfg.GrpcConf.Port)
 }

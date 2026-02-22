@@ -10,6 +10,7 @@ restapi:
   cookie-ttl: 1h
 
 grpc:
+  host: localhost
   port: 44045
   timeout: 15s
 
