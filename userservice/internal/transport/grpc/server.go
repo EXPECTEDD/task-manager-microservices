@@ -1,6 +1,7 @@
 package grpcserv
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -40,9 +41,22 @@ func (g *GRPCServer) MustStart() {
 	}
 }
 
-func (g *GRPCServer) Stop() {
+func (g *GRPCServer) Stop(ctx context.Context) {
 	const op = "grpcserv.Stop"
 	g.log.Info("start grpc server shutdown", slog.String("op", op))
-	g.serv.GracefulStop()
-	g.log.Info("grpc server stopped", slog.String("op", op))
+
+	done := make(chan struct{})
+
+	go func() {
+		g.serv.GracefulStop()
+		close(done)
+	}()
+
+	select {
+	case <-ctx.Done():
+		g.log.Warn("grpc shutdown timeout, forcing stop")
+		g.serv.Stop()
+	case <-done:
+		g.log.Info("grpc server stopped", slog.String("op", op))
+	}
 }
