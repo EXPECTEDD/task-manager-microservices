@@ -39,9 +39,9 @@ func NewApp() *App {
 	createProjectUC := createproject.NewCreateProjectUC(log, postgres)
 	deleteProjectUC := deleteproject.NewDeleteProjectUC(log, postgres)
 	getAllProjectsUC := getallprojects.NewGetAllProjectsUC(log, postgres)
-	updatePrijectUC := updateproject.NewUpdateProjectUC(log, postgres)
+	updateProjectUC := updateproject.NewUpdateProjectUC(log, postgres)
 
-	resthandl := resthandler.NewHandler(log, createProjectUC, deleteProjectUC, getAllProjectsUC, updatePrijectUC)
+	resthandl := resthandler.NewHandler(log, createProjectUC, deleteProjectUC, getAllProjectsUC, updateProjectUC)
 	grpchandler := grpchandler.NewGRPCServer(log)
 
 	restServ := mustLoadHttpServer(log, cfg, resthandl, client)
