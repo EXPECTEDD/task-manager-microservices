@@ -9,6 +9,7 @@ restapi:
   mode: debug
 
 grpc:
+  host: 0.0.0.0
   port: 44047
   timeout: 30s
 
