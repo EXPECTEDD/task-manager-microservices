@@ -10,7 +10,7 @@ import (
 )
 
 func mustLoadGRPCServer(log *slog.Logger, cfg *config.Config, handl projectservicev1.ProjectServiceServer) *grpcserver.GRPCServer {
-	serv := &grpc.Server{}
+	serv := grpc.NewServer()
 
 	return grpcserver.NewGRPCServer(log, handl, serv, cfg.GrpcConf.Host, cfg.GrpcConf.Port)
 }
