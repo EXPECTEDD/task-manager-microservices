@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func mustLoadHttpServer(cfg *config.Config, log *slog.Logger, handl *resthandler.RestHandler, sessionValid sessionalidator.SessionValidator) *rest.RestServer {
+func mustLoadHttpServer(log *slog.Logger, cfg *config.Config, handl *resthandler.RestHandler, sessionValid sessionalidator.SessionValidator) *rest.RestServer {
 	gin.SetMode(cfg.RestConf.Mode)
 	router := gin.New()
 
