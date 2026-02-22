@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log/slog"
+	"sync"
 	"userservice/internal/config"
 	bcrypthash "userservice/internal/infrastructure/bcrypt"
 	"userservice/internal/infrastructure/postgres"
@@ -71,9 +72,27 @@ func (a *App) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), a.cfg.RestConf.ShutdownTimeout)
 	defer cancel()
 
-	a.restServer.Stop(ctx)
-	a.grpcServer.Stop()
+	wg := sync.WaitGroup{}
 
-	a.db.Close()
-	a.client.Close()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		a.restServer.Stop(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		a.grpcServer.Stop(ctx)
+	}()
+
+	wg.Wait()
+
+	if err := a.db.Close(); err != nil {
+		a.log.Error("db close failed", slog.String("error", err.Error()))
+	}
+
+	if err := a.client.Close(); err != nil {
+		a.log.Error("redis close failed", slog.String("error", err.Error()))
+	}
 }
