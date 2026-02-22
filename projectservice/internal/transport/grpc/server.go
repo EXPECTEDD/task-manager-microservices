@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	grpchandler "projectservice/internal/transport/grpc/handler"
 	projectservicev1 "projectservice/proto/projectservice"
 
 	"google.golang.org/grpc"
@@ -18,7 +17,7 @@ type GRPCServer struct {
 	port uint32
 }
 
-func NewGRPCServer(log *slog.Logger, handl *grpchandler.GRPCHandler, serv *grpc.Server, host string, port uint32) *GRPCServer {
+func NewGRPCServer(log *slog.Logger, handl projectservicev1.ProjectServiceServer, serv *grpc.Server, host string, port uint32) *GRPCServer {
 	projectservicev1.RegisterProjectServiceServer(serv, handl)
 
 	return &GRPCServer{

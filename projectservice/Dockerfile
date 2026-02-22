@@ -9,4 +9,5 @@ FROM alpine:3 AS runtime
 WORKDIR /app
 COPY --from=build /app/app .
 EXPOSE 44046
+EXPOSE 44047
 ENTRYPOINT [ "./app" ]
