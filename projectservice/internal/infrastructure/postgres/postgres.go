@@ -123,3 +123,24 @@ func (p *Postgres) UpdateName(ctx context.Context, ownerId uint32, projectId uin
 
 	return nil
 }
+
+func (p *Postgres) GetProject(ctx context.Context, projectId uint32) (*projectdomain.ProjectDomain, error) {
+	row := p.db.QueryRowContext(ctx, QuerieGetProject, projectId)
+
+	model := &posmodels.ProjectPosModel{}
+
+	err := row.Scan(
+		&model.Id,
+		&model.OwnerId,
+		&model.Name,
+		&model.CreatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, storage.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return posmapper.ModelToDomain(model), nil
+}
