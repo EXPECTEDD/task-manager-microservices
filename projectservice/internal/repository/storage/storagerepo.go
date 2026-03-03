@@ -10,4 +10,5 @@ type StorageRepo interface {
 	Delete(ctx context.Context, ownerId uint32, projectId uint32) error
 	GetAll(ctx context.Context, ownerId uint32) ([]*projectdomain.ProjectDomain, error)
 	UpdateName(ctx context.Context, ownerId uint32, projectId uint32, newName string) error
+	GetProject(ctx context.Context, projectId uint32) (*projectdomain.ProjectDomain, error)
 }
