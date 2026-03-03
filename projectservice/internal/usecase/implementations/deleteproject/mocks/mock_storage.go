@@ -70,6 +70,21 @@ func (mr *MockStorageRepoMockRecorder) GetAll(ctx, ownerId any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockStorageRepo)(nil).GetAll), ctx, ownerId)
 }
 
+// GetProject mocks base method.
+func (m *MockStorageRepo) GetProject(ctx context.Context, projectId uint32) (*projectdomain.ProjectDomain, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProject", ctx, projectId)
+	ret0, _ := ret[0].(*projectdomain.ProjectDomain)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProject indicates an expected call of GetProject.
+func (mr *MockStorageRepoMockRecorder) GetProject(ctx, projectId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProject", reflect.TypeOf((*MockStorageRepo)(nil).GetProject), ctx, projectId)
+}
+
 // Save mocks base method.
 func (m *MockStorageRepo) Save(ctx context.Context, proj *projectdomain.ProjectDomain) (uint32, error) {
 	m.ctrl.T.Helper()
