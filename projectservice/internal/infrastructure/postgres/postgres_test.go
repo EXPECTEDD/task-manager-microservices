@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	projectdomain "projectservice/internal/domain/project"
 	"projectservice/internal/repository/storage"
 	"regexp"
@@ -196,7 +197,7 @@ func TestPostgres_GetAll(t *testing.T) {
 	}
 }
 
-func TestPostgre_UpdateName(t *testing.T) {
+func TestPostgres_UpdateName(t *testing.T) {
 	tests := []struct {
 		testName string
 
@@ -256,6 +257,76 @@ func TestPostgre_UpdateName(t *testing.T) {
 
 			err = postgres.UpdateName(context.Background(), tt.ownerId, tt.projectId, tt.newName)
 			require.Equal(t, tt.expErr, err)
+		})
+	}
+}
+
+func TestPostgres_GetProject(t *testing.T) {
+	timeNow := time.Now()
+
+	tests := []struct {
+		testName string
+
+		projectId  uint32
+		returnRows *sqlmock.Rows
+		returnErr  error
+
+		expErr       error
+		expProj      bool
+		expId        uint32
+		expOwnerId   uint32
+		expName      string
+		expCreatedAt time.Time
+	}{
+		{
+			testName: "Success",
+
+			projectId: 1,
+			returnRows: sqlmock.NewRows([]string{"id", "owner_id", "name", "created_at"}).
+				AddRow(1, 1, "Proj", timeNow),
+			returnErr: nil,
+
+			expErr:       nil,
+			expProj:      true,
+			expId:        1,
+			expOwnerId:   1,
+			expName:      "Proj",
+			expCreatedAt: timeNow,
+		}, {
+			testName: "Not found",
+
+			projectId: 1,
+			returnRows: sqlmock.NewRows([]string{
+				"id", "owner_id", "name", "created_at",
+			}),
+			returnErr: sql.ErrNoRows,
+
+			expErr:  storage.ErrNotFound,
+			expProj: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			require.NoError(t, err)
+			defer db.Close()
+
+			mock.ExpectQuery(regexp.QuoteMeta(QuerieGetProject)).
+				WithArgs(tt.projectId).
+				WillReturnRows(tt.returnRows).
+				WillReturnError(tt.returnErr)
+
+			postgres := NewPostgres(db)
+
+			proj, err := postgres.GetProject(context.Background(), tt.projectId)
+			require.Equal(t, tt.expErr, err)
+			if tt.expProj {
+				require.Equal(t, tt.expId, proj.Id)
+				require.Equal(t, tt.expOwnerId, proj.OwnerId)
+				require.Equal(t, tt.expName, proj.Name)
+				require.Equal(t, tt.expCreatedAt, proj.CreatedAt)
+			}
 		})
 	}
 }
