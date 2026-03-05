@@ -73,7 +73,7 @@ func TestRegUser(t *testing.T) {
 				"gmail@gmail.com",
 			),
 			regUserExpectOutput: *regmodel.NewRegOutput(
-				true,
+				1,
 			),
 			regUserExpectErr: nil,
 		}, {
@@ -102,7 +102,7 @@ func TestRegUser(t *testing.T) {
 				"gmail@gmail.com",
 			),
 			regUserExpectOutput: *regmodel.NewRegOutput(
-				false,
+				0,
 			),
 			regUserExpectErr: regerr.ErrUserAlreadyExists,
 		},
@@ -135,7 +135,7 @@ func TestRegUser(t *testing.T) {
 
 			out, err := regUC.Execute(context.Background(), &tt.regUserInput)
 			require.ErrorIs(t, tt.regUserExpectErr, err)
-			require.Equal(t, tt.regUserExpectOutput.IsRegistered, out.IsRegistered)
+			require.Equal(t, tt.regUserExpectOutput.UserId, out.UserId)
 		})
 	}
 }
