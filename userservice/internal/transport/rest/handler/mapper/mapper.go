@@ -19,7 +19,7 @@ func RegRequestToInput(r *regdto.RegistrationRequest) *regmodel.RegInput {
 
 func RegOutputToResponse(ro *regmodel.RegOutput) *regdto.RegistrationResponse {
 	return &regdto.RegistrationResponse{
-		IsRegistered: ro.IsRegistered,
+		UserId: ro.UserId,
 	}
 }
 
