@@ -26,12 +26,12 @@ func TestRegistration_Success_Integration(t *testing.T) {
 	defer resp.Body.Close()
 
 	var resBody struct {
-		IsRegistered bool `json:"is_registered"`
+		UserId uint32 `json:"user_id"`
 	}
 	expStatusCode := http.StatusOK
 
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&resBody))
-	require.True(t, resBody.IsRegistered)
+	require.Greater(t, resBody.UserId, uint32(0))
 	require.Equal(t, expStatusCode, resp.StatusCode)
 }
 
@@ -78,12 +78,12 @@ func TestRegistration_AlreadyExists_Integration(t *testing.T) {
 	defer resp1.Body.Close()
 
 	var resBody1 struct {
-		IsRegistered bool `json:"is_registered"`
+		UserId uint32 `json:"user_id"`
 	}
 	expStatusCode := http.StatusOK
 
 	require.NoError(t, json.NewDecoder(resp1.Body).Decode(&resBody1))
-	require.True(t, resBody1.IsRegistered)
+	require.Greater(t, resBody1.UserId, uint32(0))
 	require.Equal(t, expStatusCode, resp1.StatusCode)
 
 	resp2, err := http.Post(urlReg, contentType, bytes.NewReader(b))

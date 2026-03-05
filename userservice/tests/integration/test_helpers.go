@@ -42,11 +42,11 @@ func registrateUser(t *testing.T) (string, string) {
 	expStatusCode := http.StatusOK
 
 	var resBody struct {
-		IsRegistered bool `json:"is_registered"`
+		UserId uint32 `json:"user_id"`
 	}
 
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&resBody))
-	require.True(t, resBody.IsRegistered)
+	require.Greater(t, resBody.UserId, uint32(0))
 	require.Equal(t, expStatusCode, resp.StatusCode)
 
 	return email, pass
