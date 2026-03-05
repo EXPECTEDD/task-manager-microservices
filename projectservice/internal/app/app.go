@@ -14,6 +14,7 @@ import (
 	"projectservice/internal/usecase/implementations/createproject"
 	"projectservice/internal/usecase/implementations/deleteproject"
 	"projectservice/internal/usecase/implementations/getallprojects"
+	"projectservice/internal/usecase/implementations/getownerid"
 	"projectservice/internal/usecase/implementations/updateproject"
 	"projectservice/pkg/logger"
 	"sync"
@@ -40,9 +41,10 @@ func NewApp() *App {
 	deleteProjectUC := deleteproject.NewDeleteProjectUC(log, postgres)
 	getAllProjectsUC := getallprojects.NewGetAllProjectsUC(log, postgres)
 	updateProjectUC := updateproject.NewUpdateProjectUC(log, postgres)
+	getOwnerIdUC := getownerid.NewGetOwnerIdUC(log, postgres)
 
 	resthandl := resthandler.NewHandler(log, createProjectUC, deleteProjectUC, getAllProjectsUC, updateProjectUC)
-	grpchandler := grpchandler.NewGRPCServer(log)
+	grpchandler := grpchandler.NewGRPCServer(log, getOwnerIdUC)
 
 	restServ := mustLoadHttpServer(log, cfg, resthandl, client)
 	grpcServ := mustLoadGRPCServer(log, cfg, grpchandler)
