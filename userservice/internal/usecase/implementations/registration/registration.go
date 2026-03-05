@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	invalidId uint32 = 0
+	invalidId     uint32 = 0
+	invalidUserId uint32 = 0
 )
 
 type RegUserUC struct {
@@ -39,17 +40,17 @@ func (r *RegUserUC) Execute(ctx context.Context, in *regmodel.RegInput) (*regmod
 	ud, err := r.storage.FindByEmail(ctx, in.Email)
 	if err != nil && !errors.Is(err, storagerepo.ErrNoRows) {
 		log.Warn("registration stopped", slog.String("error", err.Error()))
-		return regmodel.NewRegOutput(false), err
+		return regmodel.NewRegOutput(invalidUserId), err
 	}
 	if ud != nil {
 		log.Info("registration stopped, user already exists")
-		return regmodel.NewRegOutput(false), regerr.ErrUserAlreadyExists
+		return regmodel.NewRegOutput(invalidUserId), regerr.ErrUserAlreadyExists
 	}
 
 	hashPass, err := r.passHasher.Hash([]byte(in.Password))
 	if err != nil {
 		log.Warn("registration stopped, impossible to hash", slog.String("error", err.Error()))
-		return regmodel.NewRegOutput(false), err
+		return regmodel.NewRegOutput(invalidUserId), err
 	}
 
 	ud = userdomain.NewUserDomain(
@@ -61,13 +62,13 @@ func (r *RegUserUC) Execute(ctx context.Context, in *regmodel.RegInput) (*regmod
 		in.Email,
 	)
 
-	_, err = r.storage.Save(ctx, ud)
+	userId, err := r.storage.Save(ctx, ud)
 	if err != nil {
 		log.Warn("registration stopped, failed to save user", slog.String("error", err.Error()))
-		return regmodel.NewRegOutput(false), err
+		return regmodel.NewRegOutput(invalidUserId), err
 	}
 
 	log.Info("user successfully registered")
 
-	return regmodel.NewRegOutput(true), nil
+	return regmodel.NewRegOutput(userId), nil
 }
