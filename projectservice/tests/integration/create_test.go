@@ -13,7 +13,7 @@ import (
 )
 
 func TestCreate_Success_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	body := map[string]string{
@@ -35,7 +35,7 @@ func TestCreate_Success_Integration(t *testing.T) {
 }
 
 func TestCreate_MissingFieldName_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	body := map[string]string{
@@ -58,7 +58,7 @@ func TestCreate_MissingFieldName_Integration(t *testing.T) {
 }
 
 func TestCreate_IvalidName_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	body := map[string]string{
@@ -81,7 +81,7 @@ func TestCreate_IvalidName_Integration(t *testing.T) {
 }
 
 func TestCreate_AlreadyExists_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	body := map[string]string{

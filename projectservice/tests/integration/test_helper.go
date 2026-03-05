@@ -20,13 +20,14 @@ var (
 	urlDelete       = "http://localhost:44046/project/delete"
 	urlGetAll       = "http://localhost:44046/project/getall"
 	urlUpdate       = "http://localhost:44046/project/update"
+	projectServiceConn = "localhost:44047"
 )
 
 const (
 	contentType = "application/json"
 )
 
-func registrationUser(t *testing.T) (string, string) {
+func registrationUser(t *testing.T) (uint32, string, string) {
 	email := uniqueEmail()
 	password := "somePass"
 
@@ -46,17 +47,16 @@ func registrationUser(t *testing.T) (string, string) {
 	defer resp.Body.Close()
 
 	var respBody struct {
-		IsRegistered bool `json:"is_registered"`
+		UserId uint32 `json:"user_id"`
 	}
 
-	expBody := true
 	expStatusCode := http.StatusOK
 
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&respBody))
-	require.Equal(t, expBody, respBody.IsRegistered)
+	require.Greater(t, respBody.UserId, uint32(0))
 	require.Equal(t, expStatusCode, resp.StatusCode)
 
-	return email, password
+	return respBody.UserId, email, password
 }
 
 func loginUser(t *testing.T, email string, pass string) string {

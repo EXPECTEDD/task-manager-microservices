@@ -13,7 +13,7 @@ import (
 )
 
 func TestUpdate_SuccessUpdateName_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	projName := uniqueProjectName()
@@ -40,7 +40,7 @@ func TestUpdate_SuccessUpdateName_Integration(t *testing.T) {
 }
 
 func TestUpdate_NameAlreadyExists_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	projName := uniqueProjectName()
@@ -70,7 +70,7 @@ func TestUpdate_NameAlreadyExists_Integration(t *testing.T) {
 }
 
 func TestUpdate_ProjectNotFound_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	newProjName := uniqueProjectName()
@@ -94,7 +94,7 @@ func TestUpdate_ProjectNotFound_Integration(t *testing.T) {
 }
 
 func TestUpdate_MissingFieldName_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	projName := uniqueProjectName()

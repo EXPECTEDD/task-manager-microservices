@@ -19,7 +19,7 @@ type bodyFields struct {
 }
 
 func TestGetAll_Success_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	projName := uniqueProjectName()
@@ -44,7 +44,7 @@ func TestGetAll_Success_Integration(t *testing.T) {
 }
 
 func TestGetAll_NotFound_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	resp := getAllGetResponse(t, sessionId)

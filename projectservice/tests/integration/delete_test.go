@@ -12,7 +12,7 @@ import (
 )
 
 func TestDelete_Success_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	projName := uniqueProjectName()
@@ -35,7 +35,7 @@ func TestDelete_Success_Integration(t *testing.T) {
 }
 
 func TestDelete_NotFound_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	projectId := 1
@@ -56,7 +56,7 @@ func TestDelete_NotFound_Integration(t *testing.T) {
 }
 
 func TestDelete_InvalidProjectId_Integration(t *testing.T) {
-	email, pass := registrationUser(t)
+	_, email, pass := registrationUser(t)
 	sessionId := loginUser(t, email, pass)
 
 	projectId := 0
