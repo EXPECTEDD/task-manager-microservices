@@ -1,5 +1,5 @@
 package regdto
 
 type RegistrationResponse struct {
-	IsRegistered bool `json:"is_registered" binding:"required"`
+	UserId uint32 `json:"user_id" binding:"required"`
 }
