@@ -1,11 +1,11 @@
 package regmodel
 
 type RegOutput struct {
-	IsRegistered bool
+	UserId uint32
 }
 
-func NewRegOutput(r bool) *RegOutput {
+func NewRegOutput(userId uint32) *RegOutput {
 	return &RegOutput{
-		IsRegistered: r,
+		UserId: userId,
 	}
 }
