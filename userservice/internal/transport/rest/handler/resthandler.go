@@ -101,23 +101,21 @@ func (h *RestHandler) Login(ctx *gin.Context) {
 	in := handlmapper.LogRequestToInput(&logRequest)
 
 	if lo, err := h.logUC.Execute(ctx.Request.Context(), in); err != nil {
-		if err != nil {
-			if errors.Is(err, logerr.ErrUserNotFound) {
-				log.Info("user not found")
-				ctx.JSON(http.StatusNotFound, gin.H{
-					"error": err.Error(),
-				})
-			} else if errors.Is(err, logerr.ErrWrongPassword) {
-				log.Info("wrong password")
-				ctx.JSON(http.StatusUnauthorized, gin.H{
-					"error": err.Error(),
-				})
-			} else {
-				log.Warn("an error occurred while executing the request", slog.String("error", err.Error()))
-				ctx.JSON(http.StatusInternalServerError, gin.H{
-					"error": "internal server error",
-				})
-			}
+		if errors.Is(err, logerr.ErrUserNotFound) {
+			log.Info("user not found")
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error": err.Error(),
+			})
+		} else if errors.Is(err, logerr.ErrWrongPassword) {
+			log.Info("wrong password")
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
+		} else {
+			log.Warn("an error occurred while executing the request", slog.String("error", err.Error()))
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "internal server error",
+			})
 		}
 	} else {
 		log.Info("login request completed successfully")
