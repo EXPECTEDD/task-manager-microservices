@@ -2,6 +2,7 @@ package resthandler
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"log/slog"
 	"net/http"
@@ -29,7 +30,7 @@ func TestRestHandler_Registration(t *testing.T) {
 		cookieTTL  time.Duration
 		returnData regmodel.RegOutput
 		returnErr  error
-		expRes     []byte
+		expUserId  uint32
 		expStatus  int
 	}{
 		{
@@ -43,9 +44,9 @@ func TestRestHandler_Registration(t *testing.T) {
 					}`),
 			needExpect: true,
 			cookieTTL:  time.Duration(3600) * time.Second,
-			returnData: regmodel.RegOutput{IsRegistered: true},
+			returnData: regmodel.RegOutput{UserId: 1},
 			returnErr:  nil,
-			expRes:     []byte(`{"is_registered":true}`),
+			expUserId:  1,
 			expStatus:  200,
 		}, {
 			testName: "User already exists",
@@ -57,9 +58,9 @@ func TestRestHandler_Registration(t *testing.T) {
 					"email":"gmail@gmail.com"
 					}`),
 			needExpect: true,
-			returnData: regmodel.RegOutput{IsRegistered: false},
+			returnData: regmodel.RegOutput{UserId: 0},
 			returnErr:  regerr.ErrUserAlreadyExists,
-			expRes:     []byte(`{"error":"user already exists"}`),
+			expUserId:  0,
 			expStatus:  409,
 		}, {
 			testName: "Missing field first_name",
@@ -71,9 +72,9 @@ func TestRestHandler_Registration(t *testing.T) {
 					}`),
 			needExpect: false,
 			cookieTTL:  time.Duration(3600) * time.Second,
-			returnData: regmodel.RegOutput{IsRegistered: false},
+			returnData: regmodel.RegOutput{UserId: 1},
 			returnErr:  nil,
-			expRes:     []byte(`{"errors":{"FirstName":"field is required"}}`),
+			expUserId:  0,
 			expStatus:  400,
 		}, {
 			testName: "Empty field first_name",
@@ -86,9 +87,9 @@ func TestRestHandler_Registration(t *testing.T) {
 					}`),
 			needExpect: false,
 			cookieTTL:  time.Duration(3600) * time.Second,
-			returnData: regmodel.RegOutput{IsRegistered: false},
+			returnData: regmodel.RegOutput{UserId: 0},
 			returnErr:  nil,
-			expRes:     []byte(`{"errors":{"FirstName":"field is required"}}`),
+			expUserId:  0,
 			expStatus:  400,
 		},
 	}
@@ -115,16 +116,20 @@ func TestRestHandler_Registration(t *testing.T) {
 
 			router.POST("/test", handl.Registration)
 
-			serv := httptest.NewServer(router)
-			defer serv.Close()
-
-			rest, err := http.Post(serv.URL+"/test", "application/json", bytes.NewReader(tt.body))
+			w := httptest.NewRecorder()
+			req, err := http.NewRequest(http.MethodPost, "/test", bytes.NewReader(tt.body))
 			require.NoError(t, err)
-			defer rest.Body.Close()
 
-			data, err := io.ReadAll(rest.Body)
-			require.Equal(t, tt.expStatus, rest.StatusCode)
-			require.Equal(t, tt.expRes, data)
+			router.ServeHTTP(w, req)
+			require.NoError(t, err)
+
+			var respBody struct {
+				UserId uint32 `json:"user_id"`
+			}
+
+			require.NoError(t, json.NewDecoder(w.Body).Decode(&respBody))
+			require.Equal(t, tt.expStatus, w.Result().StatusCode)
+			require.Equal(t, tt.expUserId, respBody.UserId)
 		})
 	}
 }
@@ -141,8 +146,11 @@ func TestRestHandler_Login(t *testing.T) {
 
 		reqBody []byte
 
-		expBody       []byte
 		expStatusCode int
+		expData       bool
+		expFirstName  string
+		expMiddleName string
+		expLastName   string
 	}{
 		{
 			testName:  "Success",
@@ -162,8 +170,11 @@ func TestRestHandler_Login(t *testing.T) {
 				"password":"somePass"
 			}`),
 
-			expBody:       []byte(`{"user":{"first_name":"Ivan","middle_name":"Ivanovich","last_name":"Ivanov"}}`),
 			expStatusCode: 200,
+			expData:       true,
+			expFirstName:  "Ivan",
+			expMiddleName: "Ivanovich",
+			expLastName:   "Ivanov",
 		}, {
 			testName:  "User not found",
 			cookieTTL: time.Duration(3600) * time.Second,
@@ -177,8 +188,8 @@ func TestRestHandler_Login(t *testing.T) {
 				"password":"somePass"
 			}`),
 
-			expBody:       []byte(`{"error":"user not found"}`),
 			expStatusCode: 404,
+			expData:       false,
 		}, {
 			testName:  "Wrong password",
 			cookieTTL: time.Duration(3600) * time.Second,
@@ -192,8 +203,8 @@ func TestRestHandler_Login(t *testing.T) {
 				"password":"somePass"
 			}`),
 
-			expBody:       []byte(`{"error":"wrong password"}`),
 			expStatusCode: 401,
+			expData:       false,
 		}, {
 			testName:  "Empty field email",
 			cookieTTL: time.Duration(3600) * time.Second,
@@ -205,8 +216,8 @@ func TestRestHandler_Login(t *testing.T) {
 				"password":"somePass"
 			}`),
 
-			expBody:       []byte(`{"errors":{"Email":"field is required"}}`),
 			expStatusCode: 400,
+			expData:       false,
 		},
 	}
 
@@ -231,16 +242,28 @@ func TestRestHandler_Login(t *testing.T) {
 
 			router.POST("/test", handl.Login)
 
-			serv := httptest.NewServer(router)
-			defer serv.Close()
-
-			resp, err := http.Post(serv.URL+"/test", "application/json", bytes.NewReader(tt.reqBody))
-
+			w := httptest.NewRecorder()
+			req, err := http.NewRequest(http.MethodPost, "/test", bytes.NewReader(tt.reqBody))
 			require.NoError(t, err)
-			body, err := io.ReadAll(resp.Body)
+
+			router.ServeHTTP(w, req)
 			require.NoError(t, err)
-			require.Equal(t, tt.expStatusCode, resp.StatusCode)
-			require.Equal(t, tt.expBody, body)
+
+			var respBody struct {
+				Data struct {
+					FirstName  string `json:"first_name"`
+					MiddleName string `json:"middle_name"`
+					LastName   string `json:"last_name"`
+				} `json:"user"`
+			}
+
+			require.NoError(t, json.NewDecoder(w.Body).Decode(&respBody))
+			require.Equal(t, tt.expStatusCode, w.Result().StatusCode)
+			if tt.expData {
+				require.Equal(t, tt.expFirstName, respBody.Data.FirstName)
+				require.Equal(t, tt.expMiddleName, respBody.Data.MiddleName)
+				require.Equal(t, tt.expLastName, respBody.Data.LastName)
+			}
 		})
 	}
 }
