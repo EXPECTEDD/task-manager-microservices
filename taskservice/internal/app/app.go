@@ -34,10 +34,10 @@ func NewApp() *App {
 	createUC := createuc.NewCreateTaskUC(log, postgres)
 
 	userServiceClient := userserviceclient.NewUserServiceClient(log, cfg.ConnectionsConf.UserServConnConf.Host, cfg.ConnectionsConf.UserServConnConf.Port)
-	projectServiceClient := projectserviceclient.NewProjectServiceClient(log, cfg.ConnectionsConf.ProjServConnConf.Host, cfg.PostgresConf.Port)
+	projectServiceClient := projectserviceclient.NewProjectServiceClient(log, cfg.ConnectionsConf.ProjServConnConf.Host, cfg.ConnectionsConf.ProjServConnConf.Port)
 	handl := resthandler.NewRestHandler(log, createUC)
 
-	restServer := mustLoadRestServer(cfg, log, handl, userServiceClient)
+	restServer := mustLoadRestServer(cfg, log, handl, userServiceClient, projectServiceClient)
 
 	return &App{
 		log:                  log,
