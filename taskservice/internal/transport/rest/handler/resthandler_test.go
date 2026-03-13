@@ -3,6 +3,7 @@ package resthandler
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -24,6 +25,8 @@ func TestResthandler_Create(t *testing.T) {
 	tests := []struct {
 		testName string
 
+		projectId uint32
+
 		expCreateMock   bool
 		createIn        *createmodel.CreateTaskInput
 		createReturnOut *createmodel.CreateTaskOutput
@@ -37,6 +40,8 @@ func TestResthandler_Create(t *testing.T) {
 		{
 			testName: "Success",
 
+			projectId: 1,
+
 			expCreateMock: true,
 			createIn: createmodel.NewCreateInput(
 				1,
@@ -49,7 +54,6 @@ func TestResthandler_Create(t *testing.T) {
 			createReturnErr: nil,
 
 			body: map[string]any{
-				"project_id":  1,
 				"description": "desc",
 				"deadline":    timeNow,
 			},
@@ -57,7 +61,9 @@ func TestResthandler_Create(t *testing.T) {
 			expTaskId:     1,
 			expStatusCode: http.StatusOK,
 		}, {
-			testName: "Missing filed project id",
+			testName: "Invalid project id",
+
+			projectId: 0,
 
 			expCreateMock:   false,
 			createIn:        nil,
@@ -65,7 +71,6 @@ func TestResthandler_Create(t *testing.T) {
 			createReturnErr: nil,
 
 			body: map[string]any{
-				"project":     1,
 				"description": "desc",
 				"deadline":    timeNow,
 			},
@@ -75,21 +80,24 @@ func TestResthandler_Create(t *testing.T) {
 		}, {
 			testName: "Missing filed description",
 
+			projectId: 1,
+
 			expCreateMock:   false,
 			createIn:        nil,
 			createReturnOut: nil,
 			createReturnErr: nil,
 
 			body: map[string]any{
-				"project_id": 1,
-				"desc":       "desc",
-				"deadline":   timeNow,
+				"desc":     "desc",
+				"deadline": timeNow,
 			},
 
 			expTaskId:     0,
 			expStatusCode: http.StatusBadRequest,
 		}, {
 			testName: "Missing filed deadline",
+
+			projectId: 1,
 
 			expCreateMock: true,
 			createIn: createmodel.NewCreateInput(
@@ -103,7 +111,6 @@ func TestResthandler_Create(t *testing.T) {
 			createReturnErr: nil,
 
 			body: map[string]any{
-				"project_id":  1,
 				"description": "desc",
 			},
 
@@ -128,13 +135,13 @@ func TestResthandler_Create(t *testing.T) {
 			handl := NewRestHandler(log, createUCmock)
 
 			router := gin.New()
-			router.POST("/test", handl.Create)
+			router.POST("/test/:project_id", handl.Create)
 
 			w := httptest.NewRecorder()
 
 			b, err := json.Marshal(tt.body)
 
-			req, err := http.NewRequest(http.MethodPost, "/test", bytes.NewReader(b))
+			req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("/test/%d", tt.projectId), bytes.NewReader(b))
 			require.NoError(t, err)
 			defer req.Body.Close()
 
