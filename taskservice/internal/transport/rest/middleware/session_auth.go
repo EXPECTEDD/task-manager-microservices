@@ -34,7 +34,7 @@ func SessionAuthMiddleware(log *slog.Logger, sessionValid sessionvalidator.Sessi
 				ctx.Abort()
 				return
 			}
-			errId, errStr := grpcErrorToHttp(err)
+			errId, errStr := userServiceGrpcErrorToHttp(err)
 			ctx.JSON(errId, gin.H{
 				"error": errStr,
 			})
