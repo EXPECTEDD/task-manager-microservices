@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"taskservice/internal/config"
+	"taskservice/internal/repository/projectrepository"
 	"taskservice/internal/repository/sessionvalidator"
 	"taskservice/internal/transport/rest"
 	resthandler "taskservice/internal/transport/rest/handler"
@@ -13,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func mustLoadRestServer(cfg *config.Config, log *slog.Logger, handl *resthandler.RestHandler, sessionValid sessionvalidator.SessionValidator) *rest.RestServer {
+func mustLoadRestServer(cfg *config.Config, log *slog.Logger, handl *resthandler.RestHandler, sessionValid sessionvalidator.SessionValidator, projRepo projectrepository.ProjectRepository) *rest.RestServer {
 	gin.SetMode(cfg.RestConf.Mode)
 	router := gin.New()
 
@@ -22,6 +23,7 @@ func mustLoadRestServer(cfg *config.Config, log *slog.Logger, handl *resthandler
 	group.Use(gin.Recovery())
 	group.Use(middleware.GetSessionMiddleware(log))
 	group.Use(middleware.SessionAuthMiddleware(log, sessionValid, cfg.ConnectionsConf.UserServConnConf.ResponseTimeout))
+	group.Use(middleware.CheckAccessToProjectMiddleware(log, projRepo, cfg.ConnectionsConf.ProjServConnConf.ResponseTimeout))
 	group.Use(middleware.TimeoutMiddleware(cfg.RestConf.RequestTimeout))
 
 	group.POST("/task/create/:project_id", handl.Create)
