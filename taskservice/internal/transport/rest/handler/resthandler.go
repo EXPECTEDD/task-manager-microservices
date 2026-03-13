@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 	taskdomain "taskservice/internal/domain/task"
 	createdto "taskservice/internal/transport/rest/handler/dto/create"
 	handlmapper "taskservice/internal/transport/rest/handler/mapper"
@@ -33,6 +34,17 @@ func (h *RestHandler) Create(ctx *gin.Context) {
 
 	log.Info("starting create request")
 
+	projectIdStr := ctx.Param("project_id")
+	projectId, err := strconv.ParseUint(projectIdStr, 10, 32)
+	if projectId == 0 || err != nil {
+		log.Warn("cannot get project id")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid project id",
+		})
+		ctx.Abort()
+		return
+	}
+
 	var req createdto.CreateRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -49,7 +61,7 @@ func (h *RestHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	in := handlmapper.CreateRequestToInput(&req)
+	in := handlmapper.CreateRequestToInput(&req, uint32(projectId))
 
 	out, err := h.createUC.Execute(ctx.Request.Context(), in)
 	if err != nil {
