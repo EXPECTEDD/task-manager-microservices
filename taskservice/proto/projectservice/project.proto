@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package projectserviceproto;
+
+option go_package = "./;projectservicev1";
+
+service ProjectService {
+    rpc GetOwnerId (GetOwnerIdRequest) returns (GetOwnerIdResponse);
+}
+
+message GetOwnerIdRequest {
+    uint32 project_id = 1;
+}
+
+message GetOwnerIdResponse {
+    uint32 owner_id = 1;
+}
