@@ -24,11 +24,11 @@ func mustLoadRestServer(cfg *config.Config, log *slog.Logger, handl *resthandler
 	group.Use(middleware.SessionAuthMiddleware(log, sessionValid, cfg.ConnectionsConf.UserServConnConf.ResponseTimeout))
 	group.Use(middleware.TimeoutMiddleware(cfg.RestConf.RequestTimeout))
 
-	group.POST("/task/create", handl.Create)
-	group.DELETE("task/delete/:task_id", handl.Delete)
+	group.POST("/task/create/:project_id", handl.Create)
+	group.DELETE("task/delete/:task_id/:project_id", handl.Delete)
 	group.GET("/task/getall/:project_id", handl.GetAll)
-	group.PATCH("/task/update/:task_id", handl.Update)
-	group.GET("/task/get/:task_id", handl.Get)
+	group.PATCH("/task/update/:task_id/:project_id", handl.Update)
+	group.GET("/task/get/:task_id/:project_id", handl.Get)
 
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.RestConf.Port),
