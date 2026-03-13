@@ -17,6 +17,10 @@ connections:
     host: userservice
     port: 44045
     response_timeout: 5s
+  projectservice:
+    host: projectservice
+    port: 44047
+    response_timeout: 5s
 
 logger:
   level: debug

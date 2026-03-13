@@ -17,6 +17,10 @@ connections:
     host: localhost
     port: 44045
     response_timeout: 5s
+  projectservice:
+    host: localhost
+    port: 44047
+    response_timeout: 5s
 
 postgres:
   host: localhost
