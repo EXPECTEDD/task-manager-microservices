@@ -38,10 +38,17 @@ type GRPCConfig struct {
 }
 
 type ConnectionsConfig struct {
-	UserServConnConf UserServiceConnectionConfig `yaml:"userservice"`
+	UserServConnConf UserServiceConnectionConfig    `yaml:"userservice"`
+	ProjServConnConf ProjectServiceConnectionConfig `yaml:"projectservice"`
 }
 
 type UserServiceConnectionConfig struct {
+	Host            string        `yaml:"host"`
+	Port            uint32        `yaml:"port"`
+	ResponseTimeout time.Duration `yaml:"response_timeout"`
+}
+
+type ProjectServiceConnectionConfig struct {
 	Host            string        `yaml:"host"`
 	Port            uint32        `yaml:"port"`
 	ResponseTimeout time.Duration `yaml:"response_timeout"`
