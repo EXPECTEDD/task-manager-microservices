@@ -3,8 +3,10 @@ package app
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 	"taskservice/internal/config"
-	"taskservice/internal/infrastructure/grpc/userservice"
+	projectserviceclient "taskservice/internal/infrastructure/grpc/projectservice"
+	userserviceclient "taskservice/internal/infrastructure/grpc/userservice"
 	"taskservice/internal/infrastructure/postgres"
 	"taskservice/internal/transport/rest"
 	resthandler "taskservice/internal/transport/rest/handler"
@@ -13,10 +15,12 @@ import (
 )
 
 type App struct {
-	cfg        *config.Config
-	restServer *rest.RestServer
-	client     *userservice.UserServiceClient
-	db         *sql.DB
+	log                  *slog.Logger
+	cfg                  *config.Config
+	restServer           *rest.RestServer
+	userServiceClient    *userserviceclient.UserServiceClient
+	projectServiceClient *projectserviceclient.ProjectServiceClient
+	db                   *sql.DB
 }
 
 func NewApp() *App {
@@ -29,16 +33,19 @@ func NewApp() *App {
 
 	createUC := createuc.NewCreateTaskUC(log, postgres)
 
-	client := userservice.NewUserServiceClient(log, cfg.ConnectionsConf.UserServConnConf.Host, cfg.ConnectionsConf.UserServConnConf.Port)
+	userServiceClient := userserviceclient.NewUserServiceClient(log, cfg.ConnectionsConf.UserServConnConf.Host, cfg.ConnectionsConf.UserServConnConf.Port)
+	projectServiceClient := projectserviceclient.NewProjectServiceClient(log, cfg.ConnectionsConf.ProjServConnConf.Host, cfg.PostgresConf.Port)
 	handl := resthandler.NewRestHandler(log, createUC)
 
-	restServer := mustLoadRestServer(cfg, log, handl, client)
+	restServer := mustLoadRestServer(cfg, log, handl, userServiceClient)
 
 	return &App{
-		cfg:        cfg,
-		restServer: restServer,
-		client:     client,
-		db:         db,
+		log:                  log,
+		cfg:                  cfg,
+		restServer:           restServer,
+		userServiceClient:    userServiceClient,
+		projectServiceClient: projectServiceClient,
+		db:                   db,
 	}
 }
 
@@ -51,6 +58,11 @@ func (a *App) Stop() {
 	defer cancel()
 
 	a.restServer.Stop(ctx)
-	a.client.Stop()
-	a.db.Close()
+
+	if err := a.db.Close(); err != nil {
+		a.log.Error("db close failed", slog.String("error", err.Error()))
+	}
+
+	a.userServiceClient.Stop()
+	a.projectServiceClient.Stop()
 }
