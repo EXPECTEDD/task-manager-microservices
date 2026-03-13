@@ -47,6 +47,7 @@ func CheckAccessToProjectMiddleware(log *slog.Logger, projectRepository projectr
 		projectIdStr := ctx.Param("project_id")
 		projectId, err := strconv.ParseUint(projectIdStr, 10, 32)
 		if projectId == 0 || err != nil {
+			log.Warn("cannot get project id")
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": "invalid project id",
 			})
