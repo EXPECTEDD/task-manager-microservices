@@ -66,6 +66,18 @@ func TestCheckAccessToProjectMiddleware(t *testing.T) {
 			projRepReturnErr: status.Error(codes.Internal, "error"),
 
 			expStatusCode: http.StatusBadGateway,
+		}, {
+			testName: "Access denied",
+
+			sessionId: "session",
+			userId:    1,
+			projectId: 1,
+
+			expProjRep:       true,
+			projRepReturn:    2,
+			projRepReturnErr: nil,
+
+			expStatusCode: http.StatusForbidden,
 		},
 	}
 
