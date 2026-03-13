@@ -5,9 +5,9 @@ import (
 	createmodel "taskservice/internal/usecase/models/createtask"
 )
 
-func CreateRequestToInput(req *createdto.CreateRequest) *createmodel.CreateTaskInput {
+func CreateRequestToInput(req *createdto.CreateRequest, projectId uint32) *createmodel.CreateTaskInput {
 	return createmodel.NewCreateInput(
-		req.ProjectId,
+		projectId,
 		req.Description,
 		req.Deadline,
 	)
