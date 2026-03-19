@@ -33,7 +33,7 @@ func validateProjectId(projectId uint32) error {
 
 func validateDescription(description string) error {
 	rDesc := []rune(description)
-	if len(rDesc) > 255 {
+	if len(rDesc) == 0 || len(rDesc) > 255 {
 		return ErrInvalidDescription
 	}
 	return nil
