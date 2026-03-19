@@ -13,6 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 	taskdomain "taskservice/internal/domain/task"
+	time "time"
 
 	gomock "go.uber.org/mock/gomock"
 )
@@ -39,6 +40,34 @@ func NewMockStorageRepo(ctrl *gomock.Controller) *MockStorageRepo {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockStorageRepo) EXPECT() *MockStorageRepoMockRecorder {
 	return m.recorder
+}
+
+// ChangeDeadline mocks base method.
+func (m *MockStorageRepo) ChangeDeadline(ctx context.Context, taskId uint32, newDeadline time.Time) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangeDeadline", ctx, taskId, newDeadline)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ChangeDeadline indicates an expected call of ChangeDeadline.
+func (mr *MockStorageRepoMockRecorder) ChangeDeadline(ctx, taskId, newDeadline any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeDeadline", reflect.TypeOf((*MockStorageRepo)(nil).ChangeDeadline), ctx, taskId, newDeadline)
+}
+
+// ChangeDescription mocks base method.
+func (m *MockStorageRepo) ChangeDescription(ctx context.Context, taskId uint32, newDescription string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangeDescription", ctx, taskId, newDescription)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ChangeDescription indicates an expected call of ChangeDescription.
+func (mr *MockStorageRepoMockRecorder) ChangeDescription(ctx, taskId, newDescription any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeDescription", reflect.TypeOf((*MockStorageRepo)(nil).ChangeDescription), ctx, taskId, newDescription)
 }
 
 // Save mocks base method.
