@@ -52,6 +52,7 @@ func TestPostgres_ChangeDescription(t *testing.T) {
 		testName string
 
 		taskId         uint32
+		projectId      uint32
 		newDescription string
 		returnResult   driver.Result
 
@@ -61,6 +62,7 @@ func TestPostgres_ChangeDescription(t *testing.T) {
 			testName: "Success",
 
 			taskId:         1,
+			projectId:      1,
 			newDescription: "new description",
 			returnResult:   sqlmock.NewResult(0, 1),
 
@@ -69,6 +71,7 @@ func TestPostgres_ChangeDescription(t *testing.T) {
 			testName: "Task not found",
 
 			taskId:         1,
+			projectId:      1,
 			newDescription: "new description",
 			returnResult:   sqlmock.NewResult(0, 0),
 
@@ -83,13 +86,13 @@ func TestPostgres_ChangeDescription(t *testing.T) {
 			defer db.Close()
 
 			mock.ExpectExec(regexp.QuoteMeta(QuerieUpdateDescription)).
-				WithArgs(tt.newDescription, tt.taskId).
+				WithArgs(tt.newDescription, tt.taskId, tt.projectId).
 				WillReturnResult(tt.returnResult).
 				WillReturnError(nil)
 
 			postgres := NewPostgres(db)
 
-			err = postgres.ChangeDescription(context.Background(), tt.taskId, tt.newDescription)
+			err = postgres.ChangeDescription(context.Background(), tt.taskId, tt.projectId, tt.newDescription)
 
 			require.Equal(t, tt.expectErr, err)
 		})
@@ -103,6 +106,7 @@ func TestPostgres_ChangeDeadline(t *testing.T) {
 		testName string
 
 		taskId       uint32
+		projectId    uint32
 		newDeadline  time.Time
 		returnResult driver.Result
 
@@ -112,6 +116,7 @@ func TestPostgres_ChangeDeadline(t *testing.T) {
 			testName: "Success",
 
 			taskId:       1,
+			projectId:    1,
 			newDeadline:  timeNow,
 			returnResult: sqlmock.NewResult(0, 1),
 
@@ -120,6 +125,7 @@ func TestPostgres_ChangeDeadline(t *testing.T) {
 			testName: "Task not found",
 
 			taskId:       1,
+			projectId:    1,
 			newDeadline:  timeNow,
 			returnResult: sqlmock.NewResult(0, 0),
 
@@ -134,13 +140,13 @@ func TestPostgres_ChangeDeadline(t *testing.T) {
 			defer db.Close()
 
 			mock.ExpectExec(regexp.QuoteMeta(QuerieUpdateDeadline)).
-				WithArgs(tt.newDeadline, tt.taskId).
+				WithArgs(tt.newDeadline, tt.taskId, tt.projectId).
 				WillReturnResult(tt.returnResult).
 				WillReturnError(nil)
 
 			postgres := NewPostgres(db)
 
-			err = postgres.ChangeDeadline(context.Background(), tt.taskId, tt.newDeadline)
+			err = postgres.ChangeDeadline(context.Background(), tt.taskId, tt.projectId, tt.newDeadline)
 
 			require.Equal(t, tt.expectErr, err)
 		})
