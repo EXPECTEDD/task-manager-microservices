@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"database/sql/driver"
 	"regexp"
 	taskdomain "taskservice/internal/domain/task"
 	posmodels "taskservice/internal/infrastructure/postgres/models"
+	"taskservice/internal/repository/storage"
 	"testing"
 	"time"
 
@@ -43,4 +45,104 @@ func TestPostgres_Save_Success(t *testing.T) {
 	id, err := postgres.Save(context.Background(), td)
 	require.NoError(t, err)
 	require.Equal(t, uint32(1), id)
+}
+
+func TestPostgres_ChangeDescription(t *testing.T) {
+	tests := []struct {
+		testName string
+
+		taskId         uint32
+		newDescription string
+		returnResult   driver.Result
+
+		expectErr error
+	}{
+		{
+			testName: "Success",
+
+			taskId:         1,
+			newDescription: "new description",
+			returnResult:   sqlmock.NewResult(0, 1),
+
+			expectErr: nil,
+		}, {
+			testName: "Task not found",
+
+			taskId:         1,
+			newDescription: "new description",
+			returnResult:   sqlmock.NewResult(0, 0),
+
+			expectErr: storage.ErrTaskNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			require.NoError(t, err)
+			defer db.Close()
+
+			mock.ExpectExec(regexp.QuoteMeta(QuerieUpdateDescription)).
+				WithArgs(tt.newDescription, tt.taskId).
+				WillReturnResult(tt.returnResult).
+				WillReturnError(nil)
+
+			postgres := NewPostgres(db)
+
+			err = postgres.ChangeDescription(context.Background(), tt.taskId, tt.newDescription)
+
+			require.Equal(t, tt.expectErr, err)
+		})
+	}
+}
+
+func TestPostgres_ChangeDeadline(t *testing.T) {
+	timeNow := time.Now()
+
+	tests := []struct {
+		testName string
+
+		taskId       uint32
+		newDeadline  time.Time
+		returnResult driver.Result
+
+		expectErr error
+	}{
+		{
+			testName: "Success",
+
+			taskId:       1,
+			newDeadline:  timeNow,
+			returnResult: sqlmock.NewResult(0, 1),
+
+			expectErr: nil,
+		}, {
+			testName: "Task not found",
+
+			taskId:       1,
+			newDeadline:  timeNow,
+			returnResult: sqlmock.NewResult(0, 0),
+
+			expectErr: storage.ErrTaskNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			require.NoError(t, err)
+			defer db.Close()
+
+			mock.ExpectExec(regexp.QuoteMeta(QuerieUpdateDeadline)).
+				WithArgs(tt.newDeadline, tt.taskId).
+				WillReturnResult(tt.returnResult).
+				WillReturnError(nil)
+
+			postgres := NewPostgres(db)
+
+			err = postgres.ChangeDeadline(context.Background(), tt.taskId, tt.newDeadline)
+
+			require.Equal(t, tt.expectErr, err)
+		})
+	}
 }
