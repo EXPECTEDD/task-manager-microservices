@@ -166,7 +166,8 @@ func TestRestHandler_Update(t *testing.T) {
 	tests := []struct {
 		testName string
 
-		taskId uint32
+		taskId    uint32
+		projectId uint32
 
 		body map[string]string
 
@@ -180,7 +181,8 @@ func TestRestHandler_Update(t *testing.T) {
 		{
 			testName: "Success",
 
-			taskId: 1,
+			taskId:    1,
+			projectId: 1,
 
 			body: map[string]string{
 				"new_description": "new description",
@@ -196,7 +198,8 @@ func TestRestHandler_Update(t *testing.T) {
 		}, {
 			testName: "Succes without description",
 
-			taskId: 1,
+			taskId:    1,
+			projectId: 1,
 
 			body: map[string]string{
 				"new_deadline": timeNow.Format(time.RFC3339),
@@ -211,7 +214,8 @@ func TestRestHandler_Update(t *testing.T) {
 		}, {
 			testName: "Success without deadline",
 
-			taskId: 1,
+			taskId:    1,
+			projectId: 1,
 
 			body: map[string]string{
 				"new_description": "new description",
@@ -226,7 +230,8 @@ func TestRestHandler_Update(t *testing.T) {
 		}, {
 			testName: "Without all",
 
-			taskId: 1,
+			taskId:    1,
+			projectId: 1,
 
 			body: map[string]string{},
 
@@ -239,7 +244,24 @@ func TestRestHandler_Update(t *testing.T) {
 		}, {
 			testName: "Invalid task id",
 
-			taskId: 0,
+			taskId:    0,
+			projectId: 1,
+
+			body: map[string]string{
+				"new_description": "new description",
+			},
+
+			expUpdateMock:       false,
+			updateMockReturn:    updatemodel.NewUpdateTaskOutput(true),
+			updateMockReturnErr: nil,
+
+			expReturn:     false,
+			expStatusCode: http.StatusBadRequest,
+		}, {
+			testName: "Invalid project id",
+
+			taskId:    1,
+			projectId: 0,
 
 			body: map[string]string{
 				"new_description": "new description",
@@ -270,14 +292,14 @@ func TestRestHandler_Update(t *testing.T) {
 			handl := NewRestHandler(log, nil, updateMock)
 
 			router := gin.New()
-			router.PATCH("/test/:task_id", handl.Update)
+			router.PATCH("/test/:task_id/:project_id", handl.Update)
 
 			w := httptest.NewRecorder()
 
 			b, err := json.Marshal(tt.body)
 			require.NoError(t, err)
 
-			req, err := http.NewRequest(http.MethodPatch, fmt.Sprintf("/test/%d", tt.taskId), bytes.NewReader(b))
+			req, err := http.NewRequest(http.MethodPatch, fmt.Sprintf("/test/%d/%d", tt.taskId, tt.projectId), bytes.NewReader(b))
 			require.NoError(t, err)
 
 			router.ServeHTTP(w, req)
