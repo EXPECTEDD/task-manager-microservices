@@ -110,7 +110,7 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	var req *updatedto.UpdateRequest
+	var req updatedto.UpdateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		log.Warn("error with request data", slog.String("error", err.Error()))
 		if errMap, ok := handlvalidator.MapValidationErrors(err); ok {
@@ -125,14 +125,23 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 		return
 	}
 
+	if req.NewDeadline == nil && req.NewDescription == nil {
+		log.Info("empty body")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "nothing to update",
+		})
+		return
+	}
+
 	if req.NewDescription != nil && *req.NewDescription == "" {
 		log.Info("invalid new description")
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid new description",
 		})
+		return
 	}
 
-	in := handlmapper.UpdateRequestToInput(req, uint32(taskId))
+	in := handlmapper.UpdateRequestToInput(&req, uint32(taskId))
 
 	out, err := h.updateUC.Execute(ctx.Request.Context(), in)
 	if err != nil {
