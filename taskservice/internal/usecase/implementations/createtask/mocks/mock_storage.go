@@ -43,31 +43,31 @@ func (m *MockStorageRepo) EXPECT() *MockStorageRepoMockRecorder {
 }
 
 // ChangeDeadline mocks base method.
-func (m *MockStorageRepo) ChangeDeadline(ctx context.Context, taskId uint32, newDeadline time.Time) error {
+func (m *MockStorageRepo) ChangeDeadline(ctx context.Context, taskId, projectId uint32, newDeadline time.Time) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ChangeDeadline", ctx, taskId, newDeadline)
+	ret := m.ctrl.Call(m, "ChangeDeadline", ctx, taskId, projectId, newDeadline)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ChangeDeadline indicates an expected call of ChangeDeadline.
-func (mr *MockStorageRepoMockRecorder) ChangeDeadline(ctx, taskId, newDeadline any) *gomock.Call {
+func (mr *MockStorageRepoMockRecorder) ChangeDeadline(ctx, taskId, projectId, newDeadline any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeDeadline", reflect.TypeOf((*MockStorageRepo)(nil).ChangeDeadline), ctx, taskId, newDeadline)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeDeadline", reflect.TypeOf((*MockStorageRepo)(nil).ChangeDeadline), ctx, taskId, projectId, newDeadline)
 }
 
 // ChangeDescription mocks base method.
-func (m *MockStorageRepo) ChangeDescription(ctx context.Context, taskId uint32, newDescription string) error {
+func (m *MockStorageRepo) ChangeDescription(ctx context.Context, taskId, projectId uint32, newDescription string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ChangeDescription", ctx, taskId, newDescription)
+	ret := m.ctrl.Call(m, "ChangeDescription", ctx, taskId, projectId, newDescription)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ChangeDescription indicates an expected call of ChangeDescription.
-func (mr *MockStorageRepoMockRecorder) ChangeDescription(ctx, taskId, newDescription any) *gomock.Call {
+func (mr *MockStorageRepoMockRecorder) ChangeDescription(ctx, taskId, projectId, newDescription any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeDescription", reflect.TypeOf((*MockStorageRepo)(nil).ChangeDescription), ctx, taskId, newDescription)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeDescription", reflect.TypeOf((*MockStorageRepo)(nil).ChangeDescription), ctx, taskId, projectId, newDescription)
 }
 
 // Save mocks base method.
