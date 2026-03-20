@@ -28,3 +28,9 @@ func UpdateRequestToInput(req *updatedto.UpdateRequest, taskId uint32) *updatemo
 		req.NewDeadline,
 	)
 }
+
+func UpdateOutputToResponse(out *updatemodel.UpdateTaskOutput) *updatedto.UpdateResponse {
+	return &updatedto.UpdateResponse{
+		Updated: out.Updated,
+	}
+}
