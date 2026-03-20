@@ -30,7 +30,8 @@ func TestUpdateTask(t *testing.T) {
 		newDeadline          time.Time
 		changeDeadlineReturn error
 
-		taskId uint32
+		taskId    uint32
+		projectId uint32
 
 		in *updatemodel.UpdateTaskInput
 
@@ -48,7 +49,8 @@ func TestUpdateTask(t *testing.T) {
 			newDeadline:          timeNow,
 			changeDeadlineReturn: nil,
 
-			taskId: 1,
+			taskId:    1,
+			projectId: 1,
 
 			expReturn: updatemodel.NewUpdateTaskOutput(true),
 			expErr:    nil,
@@ -61,7 +63,8 @@ func TestUpdateTask(t *testing.T) {
 			newDeadline:          timeNow,
 			changeDeadlineReturn: nil,
 
-			taskId: 1,
+			taskId:    1,
+			projectId: 1,
 
 			expReturn: updatemodel.NewUpdateTaskOutput(true),
 			expErr:    nil,
@@ -74,7 +77,8 @@ func TestUpdateTask(t *testing.T) {
 
 			expChangeDeadline: false,
 
-			taskId: 1,
+			taskId:    1,
+			projectId: 1,
 
 			expReturn: updatemodel.NewUpdateTaskOutput(true),
 			expErr:    nil,
@@ -85,7 +89,8 @@ func TestUpdateTask(t *testing.T) {
 
 			expChangeDeadline: false,
 
-			taskId: 1,
+			taskId:    1,
+			projectId: 1,
 
 			expReturn: updatemodel.NewUpdateTaskOutput(true),
 			expErr:    nil,
@@ -98,7 +103,8 @@ func TestUpdateTask(t *testing.T) {
 
 			expChangeDeadline: false,
 
-			taskId: 1,
+			taskId:    1,
+			projectId: 1,
 
 			expReturn: updatemodel.NewUpdateTaskOutput(false),
 			expErr:    updatetaskerr.ErrTaskNotFound,
@@ -112,15 +118,16 @@ func TestUpdateTask(t *testing.T) {
 
 			tt.in = &updatemodel.UpdateTaskInput{}
 			tt.in.TaskId = tt.taskId
+			tt.in.ProjectId = tt.projectId
 
 			storMock := updatemocks.NewMockStorageRepo(ctrl)
 			if tt.expChangeDescription {
-				storMock.EXPECT().ChangeDescription(gomock.Any(), tt.taskId, tt.newDescription).
+				storMock.EXPECT().ChangeDescription(gomock.Any(), tt.taskId, tt.projectId, tt.newDescription).
 					Return(tt.changeDescriptionReturn)
 				tt.in.NewDescription = &tt.newDescription
 			}
 			if tt.expChangeDeadline {
-				storMock.EXPECT().ChangeDeadline(gomock.Any(), tt.taskId, tt.newDeadline).
+				storMock.EXPECT().ChangeDeadline(gomock.Any(), tt.taskId, tt.projectId, tt.newDeadline).
 					Return(tt.changeDeadlineReturn)
 				tt.in.NewDeadline = &tt.newDeadline
 			}
