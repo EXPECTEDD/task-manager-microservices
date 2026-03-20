@@ -102,6 +102,17 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 	taskIdStr := ctx.Param("task_id")
 	taskId, err := strconv.ParseUint(taskIdStr, 10, 32)
 	if taskId == 0 || err != nil {
+		log.Warn("cannot get task id")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid project id",
+		})
+		ctx.Abort()
+		return
+	}
+
+	projectIdStr := ctx.Param("project_id")
+	projectId, err := strconv.ParseUint(projectIdStr, 10, 32)
+	if projectId == 0 || err != nil {
 		log.Warn("cannot get project id")
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid project id",
@@ -141,7 +152,7 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	in := handlmapper.UpdateRequestToInput(&req, uint32(taskId))
+	in := handlmapper.UpdateRequestToInput(&req, uint32(taskId), uint32(projectId))
 
 	out, err := h.updateUC.Execute(ctx.Request.Context(), in)
 	if err != nil {
