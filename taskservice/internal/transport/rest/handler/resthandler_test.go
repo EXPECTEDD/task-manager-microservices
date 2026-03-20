@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	handlmocks "taskservice/internal/transport/rest/handler/mocks"
 	createmodel "taskservice/internal/usecase/models/createtask"
+	updatemodel "taskservice/internal/usecase/models/updatetask"
 	"testing"
 	"time"
 
@@ -18,8 +19,9 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-//go:generate mockgen -source=./../../../usecase/interfaces/create_task.go -destination=./mocks/mock_create_project.go -package=handlmocks
-func TestResthandler_Create(t *testing.T) {
+//go:generate mockgen -source=./../../../usecase/interfaces/create_task.go -destination=./mocks/mock_create_task.go -package=handlmocks
+//go:generate mockgen -source=./../../../usecase/interfaces/update_task.go -destination=./mocks/mock_update_task.go -package=handlmocks
+func TestRestHandler_Create(t *testing.T) {
 	timeNow := time.Now().Round(0)
 
 	tests := []struct {
@@ -132,7 +134,7 @@ func TestResthandler_Create(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			handl := NewRestHandler(log, createUCmock)
+			handl := NewRestHandler(log, createUCmock, nil)
 
 			router := gin.New()
 			router.POST("/test/:project_id", handl.Create)
@@ -153,6 +155,139 @@ func TestResthandler_Create(t *testing.T) {
 
 			require.NoError(t, json.NewDecoder(w.Body).Decode(&respBody))
 			require.Equal(t, tt.expTaskId, respBody.TaskId)
+			require.Equal(t, tt.expStatusCode, w.Result().StatusCode)
+		})
+	}
+}
+
+func TestRestHandler_Update(t *testing.T) {
+	timeNow := time.Now()
+
+	tests := []struct {
+		testName string
+
+		taskId uint32
+
+		body map[string]string
+
+		expUpdateMock       bool
+		updateMockReturn    *updatemodel.UpdateTaskOutput
+		updateMockReturnErr error
+
+		expReturn     bool
+		expStatusCode int
+	}{
+		{
+			testName: "Success",
+
+			taskId: 1,
+
+			body: map[string]string{
+				"new_description": "new description",
+				"new_deadline":    timeNow.Format(time.RFC3339),
+			},
+
+			expUpdateMock:       true,
+			updateMockReturn:    updatemodel.NewUpdateTaskOutput(true),
+			updateMockReturnErr: nil,
+
+			expReturn:     true,
+			expStatusCode: http.StatusOK,
+		}, {
+			testName: "Succes without description",
+
+			taskId: 1,
+
+			body: map[string]string{
+				"new_deadline": timeNow.Format(time.RFC3339),
+			},
+
+			expUpdateMock:       true,
+			updateMockReturn:    updatemodel.NewUpdateTaskOutput(true),
+			updateMockReturnErr: nil,
+
+			expReturn:     true,
+			expStatusCode: http.StatusOK,
+		}, {
+			testName: "Success without deadline",
+
+			taskId: 1,
+
+			body: map[string]string{
+				"new_description": "new description",
+			},
+
+			expUpdateMock:       true,
+			updateMockReturn:    updatemodel.NewUpdateTaskOutput(true),
+			updateMockReturnErr: nil,
+
+			expReturn:     true,
+			expStatusCode: http.StatusOK,
+		}, {
+			testName: "Without all",
+
+			taskId: 1,
+
+			body: map[string]string{},
+
+			expUpdateMock:       false,
+			updateMockReturn:    updatemodel.NewUpdateTaskOutput(true),
+			updateMockReturnErr: nil,
+
+			expReturn:     false,
+			expStatusCode: http.StatusBadRequest,
+		}, {
+			testName: "Invalid task id",
+
+			taskId: 0,
+
+			body: map[string]string{
+				"new_description": "new description",
+			},
+
+			expUpdateMock:       false,
+			updateMockReturn:    updatemodel.NewUpdateTaskOutput(true),
+			updateMockReturnErr: nil,
+
+			expReturn:     false,
+			expStatusCode: http.StatusBadRequest,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			updateMock := handlmocks.NewMockUpdateTaskUsecase(ctrl)
+			if tt.expUpdateMock {
+				updateMock.EXPECT().Execute(gomock.Any(), gomock.Any()).
+					Return(tt.updateMockReturn, tt.updateMockReturnErr)
+			}
+
+			log := slog.New(slog.NewTextHandler(io.Discard, nil))
+
+			handl := NewRestHandler(log, nil, updateMock)
+
+			router := gin.New()
+			router.PATCH("/test/:task_id", handl.Update)
+
+			w := httptest.NewRecorder()
+
+			b, err := json.Marshal(tt.body)
+			require.NoError(t, err)
+
+			req, err := http.NewRequest(http.MethodPatch, fmt.Sprintf("/test/%d", tt.taskId), bytes.NewReader(b))
+			require.NoError(t, err)
+
+			router.ServeHTTP(w, req)
+
+			var respBody struct {
+				Update bool `json:"updated"`
+			}
+
+			require.NoError(t, json.NewDecoder(w.Body).Decode(&respBody))
+			require.Equal(t, tt.expReturn, respBody.Update)
 			require.Equal(t, tt.expStatusCode, w.Result().StatusCode)
 		})
 	}
