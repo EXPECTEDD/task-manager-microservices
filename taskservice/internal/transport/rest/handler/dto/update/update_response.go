@@ -1,5 +1,5 @@
 package updatedto
 
-type UpdateTaskResponse struct {
+type UpdateResponse struct {
 	Updated bool `json:"updated"`
 }
