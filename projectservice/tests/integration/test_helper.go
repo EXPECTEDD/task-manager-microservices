@@ -14,12 +14,12 @@ import (
 )
 
 var (
-	urlRegistration = "http://localhost:44044/user/registration"
-	urlLogin        = "http://localhost:44044/user/login"
-	urlCreate       = "http://localhost:44046/project/create"
-	urlDelete       = "http://localhost:44046/project/delete"
-	urlGetAll       = "http://localhost:44046/project/getall"
-	urlUpdate       = "http://localhost:44046/project/update"
+	urlRegistration    = "http://localhost:44044/user/registration"
+	urlLogin           = "http://localhost:44044/user/login"
+	urlCreate          = "http://localhost:44046/project/create"
+	urlDelete          = "http://localhost:44046/project/delete"
+	urlGetAll          = "http://localhost:44046/project/getall"
+	urlUpdate          = "http://localhost:44046/project/update"
 	projectServiceConn = "localhost:44047"
 )
 
