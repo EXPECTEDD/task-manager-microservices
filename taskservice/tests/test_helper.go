@@ -18,6 +18,7 @@ var (
 	urlLogin        = "http://localhost:44044/user/login"
 	urlCreate       = "http://localhost:44046/project/create"
 	urlCreateTask   = "http://localhost:44048/task/create"
+	urlUpdateTask   = "http://localhost:44048/task/update"
 )
 
 const (
@@ -151,6 +152,57 @@ func createProject(t *testing.T, sessionId string, projName string) uint32 {
 	return respBody.ProjectId
 }
 
-// func createTask(t *testing.T, sessionId string, taskName string) uint32 {
+func createTask(t *testing.T, sessionId string, projectId uint32, description string, deadline string) uint32 {
+	var body map[string]string
 
-// }
+	if description != "" && deadline == "" {
+		body = map[string]string{
+			"description": description,
+		}
+	} else if description != "" && deadline != "" {
+		body = map[string]string{
+			"description": description,
+			"deadline":    deadline,
+		}
+	}
+
+	b, err := json.Marshal(body)
+	require.NoError(t, err)
+
+	cookies := []*http.Cookie{}
+	cookie := http.Cookie{
+		Name:  "sessionId",
+		Value: sessionId,
+	}
+	cookies = append(cookies, &cookie)
+
+	u, err := url.Parse(urlCreateTask)
+
+	cookieJar, err := cookiejar.New(nil)
+	require.NoError(t, err)
+
+	cookieJar.SetCookies(u, cookies)
+
+	client := http.Client{
+		Jar: cookieJar,
+	}
+
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%d", urlCreateTask, projectId), bytes.NewReader(b))
+	require.NoError(t, err)
+
+	resp, err := client.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	var respBody struct {
+		TaskId uint32 `json:"task_id"`
+	}
+
+	expStatusCode := http.StatusOK
+
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&respBody))
+	require.Greater(t, respBody.TaskId, uint32(0))
+	require.Equal(t, expStatusCode, resp.StatusCode)
+
+	return respBody.TaskId
+}
