@@ -38,8 +38,8 @@ func (p *Postgres) Save(ctx context.Context, td *taskdomain.TaskDomain) (uint32,
 	return id, nil
 }
 
-func (p *Postgres) ChangeDescription(ctx context.Context, taskId uint32, newDescription string) error {
-	res, err := p.db.ExecContext(ctx, QuerieUpdateDescription, newDescription, taskId)
+func (p *Postgres) ChangeDescription(ctx context.Context, taskId uint32, projectId uint32, newDescription string) error {
+	res, err := p.db.ExecContext(ctx, QuerieUpdateDescription, newDescription, taskId, projectId)
 	if err != nil {
 		return err
 	}
@@ -55,8 +55,8 @@ func (p *Postgres) ChangeDescription(ctx context.Context, taskId uint32, newDesc
 	return nil
 }
 
-func (p *Postgres) ChangeDeadline(ctx context.Context, taskId uint32, newDeadline time.Time) error {
-	res, err := p.db.ExecContext(ctx, QuerieUpdateDeadline, newDeadline, taskId)
+func (p *Postgres) ChangeDeadline(ctx context.Context, taskId uint32, projectId uint32, newDeadline time.Time) error {
+	res, err := p.db.ExecContext(ctx, QuerieUpdateDeadline, newDeadline, taskId, projectId)
 	if err != nil {
 		return err
 	}
