@@ -29,7 +29,7 @@ func (u *UpdateTaskUC) Execute(ctx context.Context, in *updatemodel.UpdateTaskIn
 	log.Info("starting updating task")
 
 	if in.NewDescription != nil {
-		err := u.stor.ChangeDescription(ctx, in.TaskId, *in.NewDescription)
+		err := u.stor.ChangeDescription(ctx, in.TaskId, in.ProjectId, *in.NewDescription)
 		if err != nil {
 			if errors.Is(err, storage.ErrTaskNotFound) {
 				log.Info("task not found")
@@ -40,7 +40,7 @@ func (u *UpdateTaskUC) Execute(ctx context.Context, in *updatemodel.UpdateTaskIn
 		}
 	}
 	if in.NewDeadline != nil {
-		err := u.stor.ChangeDeadline(ctx, in.TaskId, *in.NewDeadline)
+		err := u.stor.ChangeDeadline(ctx, in.TaskId, in.ProjectId, *in.NewDeadline)
 		if err != nil {
 			if errors.Is(err, storage.ErrTaskNotFound) {
 				log.Info("task not found")
