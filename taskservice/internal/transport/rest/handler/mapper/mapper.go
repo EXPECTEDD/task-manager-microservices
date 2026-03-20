@@ -21,9 +21,10 @@ func CreateOutputToResponse(out *createmodel.CreateTaskOutput) *createdto.Create
 	}
 }
 
-func UpdateRequestToInput(req *updatedto.UpdateRequest, taskId uint32) *updatemodel.UpdateTaskInput {
+func UpdateRequestToInput(req *updatedto.UpdateRequest, taskId uint32, projectId uint32) *updatemodel.UpdateTaskInput {
 	return updatemodel.NewUpdateTaskInput(
 		taskId,
+		projectId,
 		req.NewDescription,
 		req.NewDeadline,
 	)
