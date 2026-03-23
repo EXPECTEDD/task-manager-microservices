@@ -70,6 +70,20 @@ func (mr *MockStorageRepoMockRecorder) ChangeDescription(ctx, taskId, projectId,
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeDescription", reflect.TypeOf((*MockStorageRepo)(nil).ChangeDescription), ctx, taskId, projectId, newDescription)
 }
 
+// Delete mocks base method.
+func (m *MockStorageRepo) Delete(ctx context.Context, taskId, projectId uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, taskId, projectId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockStorageRepoMockRecorder) Delete(ctx, taskId, projectId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStorageRepo)(nil).Delete), ctx, taskId, projectId)
+}
+
 // Save mocks base method.
 func (m *MockStorageRepo) Save(ctx context.Context, td *taskdomain.TaskDomain) (uint32, error) {
 	m.ctrl.T.Helper()
