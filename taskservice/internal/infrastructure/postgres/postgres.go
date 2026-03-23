@@ -71,3 +71,20 @@ func (p *Postgres) ChangeDeadline(ctx context.Context, taskId uint32, projectId 
 
 	return nil
 }
+
+func (p *Postgres) Delete(ctx context.Context, taskId uint32, projectId uint32) error {
+	res, err := p.db.ExecContext(ctx, QuerieDelete, taskId, projectId)
+	if err != nil {
+		return err
+	}
+
+	ra, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if ra == 0 {
+		return storage.ErrTaskNotFound
+	}
+
+	return nil
+}
