@@ -1,4 +1,4 @@
-package deletetask
+package deleteuc
 
 import (
 	"context"
@@ -58,7 +58,7 @@ func TestDelete(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			deleteUC := NewDeleteUC(log, storMock)
+			deleteUC := NewDeleteTaskUC(log, storMock)
 
 			in := deletemodel.NewDeleteTaskInput(
 				tt.taskId,

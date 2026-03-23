@@ -1,4 +1,4 @@
-package deletetask
+package deleteuc
 
 import (
 	"context"
@@ -9,19 +9,19 @@ import (
 	deletemodel "taskservice/internal/usecase/models/deletetask"
 )
 
-type DeleteUC struct {
+type DeleteTaskUC struct {
 	log  *slog.Logger
 	stor storage.StorageRepo
 }
 
-func NewDeleteUC(log *slog.Logger, stor storage.StorageRepo) *DeleteUC {
-	return &DeleteUC{
+func NewDeleteTaskUC(log *slog.Logger, stor storage.StorageRepo) *DeleteTaskUC {
+	return &DeleteTaskUC{
 		log:  log,
 		stor: stor,
 	}
 }
 
-func (d *DeleteUC) Execute(ctx context.Context, in *deletemodel.DeleteTaskInput) (*deletemodel.DeleteTaskOutput, error) {
+func (d *DeleteTaskUC) Execute(ctx context.Context, in *deletemodel.DeleteTaskInput) (*deletemodel.DeleteTaskOutput, error) {
 	const op = "deletetask.Execute"
 
 	log := d.log.With(slog.String("op", op))
