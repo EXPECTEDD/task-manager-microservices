@@ -11,6 +11,7 @@ import (
 	"taskservice/internal/transport/rest"
 	resthandler "taskservice/internal/transport/rest/handler"
 	createuc "taskservice/internal/usecase/implementations/createtask"
+	deleteuc "taskservice/internal/usecase/implementations/deletetask"
 	updateuc "taskservice/internal/usecase/implementations/updatetask"
 	"taskservice/pkg/logger"
 )
@@ -34,10 +35,11 @@ func NewApp() *App {
 
 	createUC := createuc.NewCreateTaskUC(log, postgres)
 	updateUC := updateuc.NewUpdateTaskUC(log, postgres)
+	deleteUC := deleteuc.NewDeleteTaskUC(log, postgres)
 
 	userServiceClient := userserviceclient.NewUserServiceClient(log, cfg.ConnectionsConf.UserServConnConf.Host, cfg.ConnectionsConf.UserServConnConf.Port)
 	projectServiceClient := projectserviceclient.NewProjectServiceClient(log, cfg.ConnectionsConf.ProjServConnConf.Host, cfg.ConnectionsConf.ProjServConnConf.Port)
-	handl := resthandler.NewRestHandler(log, createUC, updateUC)
+	handl := resthandler.NewRestHandler(log, createUC, updateUC, deleteUC)
 
 	restServer := mustLoadRestServer(cfg, log, handl, userServiceClient, projectServiceClient)
 
