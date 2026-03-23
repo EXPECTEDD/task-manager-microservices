@@ -10,8 +10,10 @@ import (
 	updatedto "taskservice/internal/transport/rest/handler/dto/update"
 	handlmapper "taskservice/internal/transport/rest/handler/mapper"
 	handlvalidator "taskservice/internal/transport/rest/handler/validator"
+	deleteerr "taskservice/internal/usecase/error/deletetask"
 	updatetaskerr "taskservice/internal/usecase/error/updatetask"
 	"taskservice/internal/usecase/interfaces"
+	deletemodel "taskservice/internal/usecase/models/deletetask"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,13 +23,15 @@ type RestHandler struct {
 
 	createUC interfaces.CreateTaskUsecase
 	updateUC interfaces.UpdateTaskUsecase
+	deleteUC interfaces.DeleteUsecase
 }
 
-func NewRestHandler(log *slog.Logger, createUC interfaces.CreateTaskUsecase, updateUC interfaces.UpdateTaskUsecase) *RestHandler {
+func NewRestHandler(log *slog.Logger, createUC interfaces.CreateTaskUsecase, updateUC interfaces.UpdateTaskUsecase, deleteUC interfaces.DeleteUsecase) *RestHandler {
 	return &RestHandler{
 		log:      log,
 		createUC: createUC,
 		updateUC: updateUC,
+		deleteUC: deleteUC,
 	}
 }
 
@@ -99,6 +103,8 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 
 	log := h.log.With(slog.String("op", op))
 
+	log.Info("starting update request")
+
 	taskIdStr := ctx.Param("task_id")
 	taskId, err := strconv.ParseUint(taskIdStr, 10, 32)
 	if taskId == 0 || err != nil {
@@ -157,7 +163,7 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 	out, err := h.updateUC.Execute(ctx.Request.Context(), in)
 	if err != nil {
 		if errors.Is(err, updatetaskerr.ErrTaskNotFound) {
-			log.Info("project not found")
+			log.Info("task not found")
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
 			})
@@ -177,7 +183,55 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 }
 
 func (h *RestHandler) Delete(ctx *gin.Context) {
-	panic("not implemented")
+	const op = "resthandler.Delete"
+
+	log := h.log.With(slog.String("op", op))
+
+	log.Info("starting delete request")
+
+	taskIdStr := ctx.Param("task_id")
+	taskId, err := strconv.ParseUint(taskIdStr, 10, 32)
+	if taskId == 0 || err != nil {
+		log.Warn("cannot get task id")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid project id",
+		})
+		ctx.Abort()
+		return
+	}
+
+	projectIdStr := ctx.Param("project_id")
+	projectId, err := strconv.ParseUint(projectIdStr, 10, 32)
+	if projectId == 0 || err != nil {
+		log.Warn("cannot get project id")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid project id",
+		})
+		ctx.Abort()
+		return
+	}
+
+	in := deletemodel.NewDeleteTaskInput(uint32(taskId), uint32(projectId))
+
+	out, err := h.deleteUC.Execute(ctx.Request.Context(), in)
+	if err != nil {
+		if errors.Is(err, deleteerr.ErrTaskNotFound) {
+			log.Info("task not found")
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error": "task not found",
+			})
+		} else {
+			log.Warn("cannot delete task", slog.String("error", err.Error()))
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "internal server error",
+			})
+		}
+	}
+
+	log.Info("delete task completed successfully")
+
+	resp := handlmapper.DeleteOutputToResponse(out)
+	ctx.JSON(http.StatusOK, resp)
 }
 
 func (h *RestHandler) GetAll(ctx *gin.Context) {
