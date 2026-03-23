@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	handlmocks "taskservice/internal/transport/rest/handler/mocks"
+	deleteerr "taskservice/internal/usecase/error/deletetask"
 	createmodel "taskservice/internal/usecase/models/createtask"
+	deletemodel "taskservice/internal/usecase/models/deletetask"
 	updatemodel "taskservice/internal/usecase/models/updatetask"
 	"testing"
 	"time"
@@ -21,6 +23,7 @@ import (
 
 //go:generate mockgen -source=./../../../usecase/interfaces/create_task.go -destination=./mocks/mock_create_task.go -package=handlmocks
 //go:generate mockgen -source=./../../../usecase/interfaces/update_task.go -destination=./mocks/mock_update_task.go -package=handlmocks
+//go:generate mockgen -source=./../../../usecase/interfaces/delete_task.go -destination=./mocks/mock_delete_task.go -package=handlmocks
 func TestRestHandler_Create(t *testing.T) {
 	timeNow := time.Now().Round(0)
 
@@ -134,7 +137,7 @@ func TestRestHandler_Create(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			handl := NewRestHandler(log, createUCmock, nil)
+			handl := NewRestHandler(log, createUCmock, nil, nil)
 
 			router := gin.New()
 			router.POST("/test/:project_id", handl.Create)
@@ -289,7 +292,7 @@ func TestRestHandler_Update(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			handl := NewRestHandler(log, nil, updateMock)
+			handl := NewRestHandler(log, nil, updateMock, nil)
 
 			router := gin.New()
 			router.PATCH("/test/:task_id/:project_id", handl.Update)
@@ -310,6 +313,106 @@ func TestRestHandler_Update(t *testing.T) {
 
 			require.NoError(t, json.NewDecoder(w.Body).Decode(&respBody))
 			require.Equal(t, tt.expReturn, respBody.Update)
+			require.Equal(t, tt.expStatusCode, w.Result().StatusCode)
+		})
+	}
+}
+
+func TestRestHandl_Delete(t *testing.T) {
+	tests := []struct {
+		testName string
+
+		taskId    uint32
+		projectId uint32
+
+		expDeleteUC bool
+		in          *deletemodel.DeleteTaskInput
+		out         *deletemodel.DeleteTaskOutput
+		returnErr   error
+
+		expOut        bool
+		expStatusCode int
+	}{
+		{
+			testName: "Success",
+
+			taskId:    1,
+			projectId: 1,
+
+			expDeleteUC: true,
+			in:          deletemodel.NewDeleteTaskInput(1, 1),
+			out:         deletemodel.NewDeleteTaskOutput(true),
+			returnErr:   nil,
+
+			expOut:        true,
+			expStatusCode: http.StatusOK,
+		}, {
+			testName: "Invalid task id",
+
+			taskId:    0,
+			projectId: 1,
+
+			expDeleteUC: false,
+
+			expOut:        false,
+			expStatusCode: http.StatusBadRequest,
+		}, {
+			testName: "Invalid project id",
+
+			taskId:    1,
+			projectId: 0,
+
+			expDeleteUC: false,
+
+			expOut:        false,
+			expStatusCode: http.StatusBadRequest,
+		}, {
+			testName: "Task not found",
+
+			taskId:    1,
+			projectId: 1,
+
+			expDeleteUC: true,
+			in:          deletemodel.NewDeleteTaskInput(1, 1),
+			out:         deletemodel.NewDeleteTaskOutput(false),
+			returnErr:   deleteerr.ErrTaskNotFound,
+
+			expOut:        false,
+			expStatusCode: http.StatusNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			deleteUC := handlmocks.NewMockDeleteUsecase(ctrl)
+			if tt.expDeleteUC {
+				deleteUC.EXPECT().Execute(gomock.Any(), tt.in).
+					Return(tt.out, tt.returnErr)
+			}
+
+			log := slog.New(slog.NewTextHandler(io.Discard, nil))
+
+			handl := NewRestHandler(log, nil, nil, deleteUC)
+
+			router := gin.New()
+			router.DELETE("/test/:task_id/:project_id", handl.Delete)
+
+			w := httptest.NewRecorder()
+
+			req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/test/%d/%d", tt.taskId, tt.projectId), nil)
+			require.NoError(t, err)
+
+			router.ServeHTTP(w, req)
+
+			var respBody struct {
+				Deleted bool `json:"deleted"`
+			}
+
+			require.NoError(t, json.NewDecoder(w.Body).Decode(&respBody))
+			require.Equal(t, tt.expOut, respBody.Deleted)
 			require.Equal(t, tt.expStatusCode, w.Result().StatusCode)
 		})
 	}
