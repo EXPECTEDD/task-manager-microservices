@@ -152,3 +152,52 @@ func TestPostgres_ChangeDeadline(t *testing.T) {
 		})
 	}
 }
+
+func TestPostgres_Delete(t *testing.T) {
+	tests := []struct {
+		testName string
+
+		taskId       uint32
+		projectId    uint32
+		returnResult driver.Result
+
+		expectErr error
+	}{
+		{
+			testName: "Success",
+
+			taskId:       1,
+			projectId:    1,
+			returnResult: sqlmock.NewResult(0, 1),
+
+			expectErr: nil,
+		}, {
+			testName: "Task not found",
+
+			taskId:       1,
+			projectId:    1,
+			returnResult: sqlmock.NewResult(0, 0),
+
+			expectErr: storage.ErrTaskNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			require.NoError(t, err)
+			defer db.Close()
+
+			mock.ExpectExec(regexp.QuoteMeta(QuerieDelete)).
+				WithArgs(tt.taskId, tt.projectId).
+				WillReturnResult(tt.returnResult).
+				WillReturnError(nil)
+
+			postgres := NewPostgres(db)
+
+			err = postgres.Delete(context.Background(), tt.taskId, tt.projectId)
+
+			require.Equal(t, tt.expectErr, err)
+		})
+	}
+}
