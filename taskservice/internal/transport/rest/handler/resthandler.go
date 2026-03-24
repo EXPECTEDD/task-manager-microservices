@@ -11,9 +11,11 @@ import (
 	handlmapper "taskservice/internal/transport/rest/handler/mapper"
 	handlvalidator "taskservice/internal/transport/rest/handler/validator"
 	deleteerr "taskservice/internal/usecase/error/deletetask"
+	getallerr "taskservice/internal/usecase/error/getalltasks"
 	updatetaskerr "taskservice/internal/usecase/error/updatetask"
 	"taskservice/internal/usecase/interfaces"
 	deletemodel "taskservice/internal/usecase/models/deletetask"
+	getallmodel "taskservice/internal/usecase/models/getalltasks"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,14 +26,16 @@ type RestHandler struct {
 	createUC interfaces.CreateTaskUsecase
 	updateUC interfaces.UpdateTaskUsecase
 	deleteUC interfaces.DeleteTaskUsecase
+	getAllUC interfaces.GetAllTasksUsecase
 }
 
-func NewRestHandler(log *slog.Logger, createUC interfaces.CreateTaskUsecase, updateUC interfaces.UpdateTaskUsecase, deleteUC interfaces.DeleteTaskUsecase) *RestHandler {
+func NewRestHandler(log *slog.Logger, createUC interfaces.CreateTaskUsecase, updateUC interfaces.UpdateTaskUsecase, deleteUC interfaces.DeleteTaskUsecase, getAllUC interfaces.GetAllTasksUsecase) *RestHandler {
 	return &RestHandler{
 		log:      log,
 		createUC: createUC,
 		updateUC: updateUC,
 		deleteUC: deleteUC,
+		getAllUC: getAllUC,
 	}
 }
 
@@ -236,7 +240,44 @@ func (h *RestHandler) Delete(ctx *gin.Context) {
 }
 
 func (h *RestHandler) GetAll(ctx *gin.Context) {
-	panic("not implemented")
+	const op = "resthandler.GetAll"
+
+	log := h.log.With(slog.String("op", op))
+
+	log.Info("starting get all tasks request")
+
+	projectIdStr := ctx.Param("project_id")
+	projectId, err := strconv.ParseUint(projectIdStr, 10, 32)
+	if projectId == 0 || err != nil {
+		log.Warn("cannot get project id")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid project id",
+		})
+		ctx.Abort()
+		return
+	}
+
+	in := getallmodel.NewGetAllTasksInput(uint32(projectId))
+
+	out, err := h.getAllUC.Execute(ctx.Request.Context(), in)
+	if err != nil {
+		if errors.Is(err, getallerr.ErrTasksNotFound) {
+			log.Info("tasks not found")
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error": "tasks not found",
+			})
+		} else {
+			log.Warn("cannot get all tasks", slog.String("error", err.Error()))
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "internal server error",
+			})
+		}
+		return
+	}
+
+	log.Info("get all tasks completed successfully")
+	resp := handlmapper.GetAllOutputToResponse(out)
+	ctx.JSON(http.StatusOK, resp)
 }
 
 func (h *RestHandler) Get(ctx *gin.Context) {
