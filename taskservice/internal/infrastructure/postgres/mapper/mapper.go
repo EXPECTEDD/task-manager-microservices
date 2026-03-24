@@ -13,3 +13,16 @@ func TaskDomainToModel(td *taskdomain.TaskDomain) *posmodels.TaskPosModel {
 		td.Deadline,
 	)
 }
+
+func TaskModelsToDomains(tm []*posmodels.TaskPosModel) []*taskdomain.TaskDomain {
+	tasks := []*taskdomain.TaskDomain{}
+	for _, t := range tm {
+		tasks = append(tasks, taskdomain.RestoreTaskDomain(
+			t.Id,
+			t.ProjectId,
+			t.Description,
+			t.Deadline.Time,
+		))
+	}
+	return tasks
+}
