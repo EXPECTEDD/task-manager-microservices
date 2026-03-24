@@ -8,10 +8,13 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	taskdomain "taskservice/internal/domain/task"
 	handlmocks "taskservice/internal/transport/rest/handler/mocks"
 	deleteerr "taskservice/internal/usecase/error/deletetask"
+	getallerr "taskservice/internal/usecase/error/getalltasks"
 	createmodel "taskservice/internal/usecase/models/createtask"
 	deletemodel "taskservice/internal/usecase/models/deletetask"
+	getallmodel "taskservice/internal/usecase/models/getalltasks"
 	updatemodel "taskservice/internal/usecase/models/updatetask"
 	"testing"
 	"time"
@@ -24,6 +27,7 @@ import (
 //go:generate mockgen -source=./../../../usecase/interfaces/create_task.go -destination=./mocks/mock_create_task.go -package=handlmocks
 //go:generate mockgen -source=./../../../usecase/interfaces/update_task.go -destination=./mocks/mock_update_task.go -package=handlmocks
 //go:generate mockgen -source=./../../../usecase/interfaces/delete_task.go -destination=./mocks/mock_delete_task.go -package=handlmocks
+//go:generate mockgen -source=./../../../usecase/interfaces/get_all_tasks.go -destination=./mocks/mock_get_all_tasks.go -package=handlmocks
 func TestRestHandler_Create(t *testing.T) {
 	timeNow := time.Now().Round(0)
 
@@ -137,7 +141,7 @@ func TestRestHandler_Create(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			handl := NewRestHandler(log, createUCmock, nil, nil)
+			handl := NewRestHandler(log, createUCmock, nil, nil, nil)
 
 			router := gin.New()
 			router.POST("/test/:project_id", handl.Create)
@@ -292,7 +296,7 @@ func TestRestHandler_Update(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			handl := NewRestHandler(log, nil, updateMock, nil)
+			handl := NewRestHandler(log, nil, updateMock, nil, nil)
 
 			router := gin.New()
 			router.PATCH("/test/:task_id/:project_id", handl.Update)
@@ -395,7 +399,7 @@ func TestRestHandl_Delete(t *testing.T) {
 
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-			handl := NewRestHandler(log, nil, nil, deleteUC)
+			handl := NewRestHandler(log, nil, nil, deleteUC, nil)
 
 			router := gin.New()
 			router.DELETE("/test/:task_id/:project_id", handl.Delete)
@@ -413,6 +417,94 @@ func TestRestHandl_Delete(t *testing.T) {
 
 			require.NoError(t, json.NewDecoder(w.Body).Decode(&respBody))
 			require.Equal(t, tt.expOut, respBody.Deleted)
+			require.Equal(t, tt.expStatusCode, w.Result().StatusCode)
+		})
+	}
+}
+
+func TestRestHandl_GetAll(t *testing.T) {
+	timeNow := time.Now().Round(1)
+
+	tests := []struct {
+		testName string
+
+		projectId uint32
+
+		expGetAllUC bool
+		in          *getallmodel.GetAllTasksInput
+		out         *getallmodel.GetALlTasksOutput
+		returnErr   error
+
+		expOut        []*taskdomain.TaskDomain
+		expStatusCode int
+	}{
+		{
+			testName: "Success",
+
+			projectId: 1,
+
+			expGetAllUC: true,
+			in:          getallmodel.NewGetAllTasksInput(1),
+			out:         getallmodel.NewGetAllTasksOutput([]*taskdomain.TaskDomain{{Id: 1, ProjectId: 1, Description: "asd", Deadline: timeNow}, {Id: 2, ProjectId: 1, Description: "dsa", Deadline: timeNow}}),
+			returnErr:   nil,
+
+			expOut:        []*taskdomain.TaskDomain{{Id: 1, ProjectId: 1, Description: "asd", Deadline: timeNow}, {Id: 2, ProjectId: 1, Description: "dsa", Deadline: timeNow}},
+			expStatusCode: http.StatusOK,
+		}, {
+			testName: "Invalid project id",
+
+			projectId: 0,
+
+			expGetAllUC: false,
+
+			expOut:        nil,
+			expStatusCode: http.StatusBadRequest,
+		}, {
+			testName: "Tasks not found",
+
+			projectId: 1,
+
+			expGetAllUC: true,
+			in:          getallmodel.NewGetAllTasksInput(1),
+			out:         getallmodel.NewGetAllTasksOutput(nil),
+			returnErr:   getallerr.ErrTasksNotFound,
+
+			expOut:        nil,
+			expStatusCode: http.StatusNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			getAllUC := handlmocks.NewMockGetAllTasksUsecase(ctrl)
+			if tt.expGetAllUC {
+				getAllUC.EXPECT().Execute(gomock.Any(), tt.in).
+					Return(tt.out, tt.returnErr)
+			}
+
+			log := slog.New(slog.NewTextHandler(io.Discard, nil))
+
+			handl := NewRestHandler(log, nil, nil, nil, getAllUC)
+
+			router := gin.New()
+			router.GET("/test/:project_id", handl.GetAll)
+
+			w := httptest.NewRecorder()
+
+			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/test/%d", tt.projectId), nil)
+			require.NoError(t, err)
+
+			router.ServeHTTP(w, req)
+
+			var respBody struct {
+				Tasks []*taskdomain.TaskDomain `json:"tasks"`
+			}
+
+			require.NoError(t, json.NewDecoder(w.Body).Decode(&respBody))
+			require.Equal(t, tt.expOut, respBody.Tasks)
 			require.Equal(t, tt.expStatusCode, w.Result().StatusCode)
 		})
 	}
