@@ -23,10 +23,10 @@ type RestHandler struct {
 
 	createUC interfaces.CreateTaskUsecase
 	updateUC interfaces.UpdateTaskUsecase
-	deleteUC interfaces.DeleteUsecase
+	deleteUC interfaces.DeleteTaskUsecase
 }
 
-func NewRestHandler(log *slog.Logger, createUC interfaces.CreateTaskUsecase, updateUC interfaces.UpdateTaskUsecase, deleteUC interfaces.DeleteUsecase) *RestHandler {
+func NewRestHandler(log *slog.Logger, createUC interfaces.CreateTaskUsecase, updateUC interfaces.UpdateTaskUsecase, deleteUC interfaces.DeleteTaskUsecase) *RestHandler {
 	return &RestHandler{
 		log:      log,
 		createUC: createUC,
