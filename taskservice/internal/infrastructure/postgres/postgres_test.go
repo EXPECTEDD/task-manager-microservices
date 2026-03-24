@@ -201,3 +201,54 @@ func TestPostgres_Delete(t *testing.T) {
 		})
 	}
 }
+
+func TestPostgres_GetAll(t *testing.T) {
+	timeNow := time.Now().Round(1)
+
+	tests := []struct {
+		testName   string
+		projectId  uint32
+		returnRows *sqlmock.Rows
+		returnErr  error
+
+		expTasks []*taskdomain.TaskDomain
+		expErr   error
+	}{
+		{
+			testName:   "Success",
+			projectId:  1,
+			returnRows: sqlmock.NewRows([]string{"id", "project_id", "description", "deadline"}).AddRow(1, 1, "asd", timeNow).AddRow(2, 1, "dsa", timeNow),
+			returnErr:  nil,
+
+			expTasks: []*taskdomain.TaskDomain{{Id: 1, ProjectId: 1, Description: "asd", Deadline: timeNow}, {Id: 2, ProjectId: 1, Description: "dsa", Deadline: timeNow}},
+			expErr:   nil,
+		}, {
+			testName:   "Tasks not found",
+			projectId:  1,
+			returnRows: sqlmock.NewRows([]string{"id", "project_id", "description", "deadline"}),
+			returnErr:  nil,
+
+			expTasks: nil,
+			expErr:   storage.ErrTasksNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			require.NoError(t, err)
+			defer db.Close()
+
+			mock.ExpectQuery(regexp.QuoteMeta(QuerieGetAll)).
+				WithArgs(tt.projectId).
+				WillReturnRows(tt.returnRows).
+				WillReturnError(tt.returnErr)
+
+			postgres := NewPostgres(db)
+
+			tasks, err := postgres.GetAll(context.Background(), tt.projectId)
+			require.Equal(t, tt.expTasks, tasks)
+			require.Equal(t, tt.expErr, err)
+		})
+	}
+}
