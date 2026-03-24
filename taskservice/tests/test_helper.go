@@ -20,6 +20,7 @@ var (
 	urlCreateTask   = "http://localhost:44048/task/create"
 	urlUpdateTask   = "http://localhost:44048/task/update"
 	urlDeleteTask   = "http://localhost:44048/task/delete"
+	urlGetAllTasks  = "http://localhost:44048/task/getall"
 )
 
 const (
