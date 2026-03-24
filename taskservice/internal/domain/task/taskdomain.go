@@ -24,6 +24,15 @@ func NewTaskDomain(projectId uint32, description string, deadline time.Time) (*T
 	}, nil
 }
 
+func RestoreTaskDomain(id uint32, project_id uint32, description string, deadline time.Time) *TaskDomain {
+	return &TaskDomain{
+		Id:          id,
+		ProjectId:   project_id,
+		Description: description,
+		Deadline:    deadline,
+	}
+}
+
 func validateProjectId(projectId uint32) error {
 	if projectId == 0 {
 		return ErrInvalidProjectId
