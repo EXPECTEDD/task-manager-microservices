@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	taskdomain "taskservice/internal/domain/task"
 	posmapper "taskservice/internal/infrastructure/postgres/mapper"
+	posmodels "taskservice/internal/infrastructure/postgres/models"
 	"taskservice/internal/repository/storage"
 	"time"
 )
@@ -87,4 +88,38 @@ func (p *Postgres) Delete(ctx context.Context, taskId uint32, projectId uint32) 
 	}
 
 	return nil
+}
+
+func (p *Postgres) GetAll(ctx context.Context, projectId uint32) ([]*taskdomain.TaskDomain, error) {
+	rows, err := p.db.QueryContext(ctx, QuerieGetAll, projectId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	tasks := []*posmodels.TaskPosModel{}
+	for rows.Next() {
+		task := &posmodels.TaskPosModel{}
+
+		err := rows.Scan(
+			&task.Id,
+			&task.ProjectId,
+			&task.Description,
+			&task.Deadline,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		tasks = append(tasks, task)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	if len(tasks) == 0 {
+		return nil, storage.ErrTasksNotFound
+	}
+
+	return posmapper.TaskModelsToDomains(tasks), nil
 }
