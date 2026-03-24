@@ -387,7 +387,7 @@ func TestRestHandl_Delete(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			deleteUC := handlmocks.NewMockDeleteUsecase(ctrl)
+			deleteUC := handlmocks.NewMockDeleteTaskUsecase(ctrl)
 			if tt.expDeleteUC {
 				deleteUC.EXPECT().Execute(gomock.Any(), tt.in).
 					Return(tt.out, tt.returnErr)

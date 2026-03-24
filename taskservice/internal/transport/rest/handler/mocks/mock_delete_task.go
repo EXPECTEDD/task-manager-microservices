@@ -17,32 +17,32 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockDeleteUsecase is a mock of DeleteUsecase interface.
-type MockDeleteUsecase struct {
+// MockDeleteTaskUsecase is a mock of DeleteTaskUsecase interface.
+type MockDeleteTaskUsecase struct {
 	ctrl     *gomock.Controller
-	recorder *MockDeleteUsecaseMockRecorder
+	recorder *MockDeleteTaskUsecaseMockRecorder
 	isgomock struct{}
 }
 
-// MockDeleteUsecaseMockRecorder is the mock recorder for MockDeleteUsecase.
-type MockDeleteUsecaseMockRecorder struct {
-	mock *MockDeleteUsecase
+// MockDeleteTaskUsecaseMockRecorder is the mock recorder for MockDeleteTaskUsecase.
+type MockDeleteTaskUsecaseMockRecorder struct {
+	mock *MockDeleteTaskUsecase
 }
 
-// NewMockDeleteUsecase creates a new mock instance.
-func NewMockDeleteUsecase(ctrl *gomock.Controller) *MockDeleteUsecase {
-	mock := &MockDeleteUsecase{ctrl: ctrl}
-	mock.recorder = &MockDeleteUsecaseMockRecorder{mock}
+// NewMockDeleteTaskUsecase creates a new mock instance.
+func NewMockDeleteTaskUsecase(ctrl *gomock.Controller) *MockDeleteTaskUsecase {
+	mock := &MockDeleteTaskUsecase{ctrl: ctrl}
+	mock.recorder = &MockDeleteTaskUsecaseMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockDeleteUsecase) EXPECT() *MockDeleteUsecaseMockRecorder {
+func (m *MockDeleteTaskUsecase) EXPECT() *MockDeleteTaskUsecaseMockRecorder {
 	return m.recorder
 }
 
 // Execute mocks base method.
-func (m *MockDeleteUsecase) Execute(ctx context.Context, in *deletemodel.DeleteTaskInput) (*deletemodel.DeleteTaskOutput, error) {
+func (m *MockDeleteTaskUsecase) Execute(ctx context.Context, in *deletemodel.DeleteTaskInput) (*deletemodel.DeleteTaskOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Execute", ctx, in)
 	ret0, _ := ret[0].(*deletemodel.DeleteTaskOutput)
@@ -51,7 +51,7 @@ func (m *MockDeleteUsecase) Execute(ctx context.Context, in *deletemodel.DeleteT
 }
 
 // Execute indicates an expected call of Execute.
-func (mr *MockDeleteUsecaseMockRecorder) Execute(ctx, in any) *gomock.Call {
+func (mr *MockDeleteTaskUsecaseMockRecorder) Execute(ctx, in any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockDeleteUsecase)(nil).Execute), ctx, in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockDeleteTaskUsecase)(nil).Execute), ctx, in)
 }
