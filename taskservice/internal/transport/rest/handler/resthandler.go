@@ -118,7 +118,7 @@ func (h *RestHandler) Update(ctx *gin.Context) {
 	if taskId == 0 || err != nil {
 		log.Warn("cannot get task id")
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid project id",
+			"error": "invalid task id",
 		})
 		ctx.Abort()
 		return
