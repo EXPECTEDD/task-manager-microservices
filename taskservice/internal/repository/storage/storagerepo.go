@@ -12,4 +12,5 @@ type StorageRepo interface {
 	ChangeDeadline(ctx context.Context, taskId uint32, projectId uint32, newDeadline time.Time) error
 	Delete(ctx context.Context, taskId uint32, projectId uint32) error
 	GetAll(ctx context.Context, projectId uint32) ([]*taskdomain.TaskDomain, error)
+	Get(ctx context.Context, taskId uint32, projectId uint32) (*taskdomain.TaskDomain, error)
 }
