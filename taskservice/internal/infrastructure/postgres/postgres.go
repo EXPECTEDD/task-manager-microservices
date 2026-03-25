@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"errors"
 	taskdomain "taskservice/internal/domain/task"
 	posmapper "taskservice/internal/infrastructure/postgres/mapper"
 	posmodels "taskservice/internal/infrastructure/postgres/models"
@@ -122,4 +123,24 @@ func (p *Postgres) GetAll(ctx context.Context, projectId uint32) ([]*taskdomain.
 	}
 
 	return posmapper.TaskModelsToDomains(tasks), nil
+}
+
+func (p *Postgres) Get(ctx context.Context, taskId uint32, projectId uint32) (*taskdomain.TaskDomain, error) {
+	row := p.db.QueryRowContext(ctx, QuerieGet, projectId, taskId)
+
+	task := &posmodels.TaskPosModel{}
+	err := row.Scan(
+		&task.Id,
+		&task.ProjectId,
+		&task.Description,
+		&task.Deadline,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, storage.ErrTaskNotFound
+		}
+		return nil, err
+	}
+
+	return posmapper.TaskModelToDomain(task), nil
 }
