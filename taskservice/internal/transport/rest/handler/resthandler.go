@@ -12,10 +12,12 @@ import (
 	handlvalidator "taskservice/internal/transport/rest/handler/validator"
 	deleteerr "taskservice/internal/usecase/error/deletetask"
 	getallerr "taskservice/internal/usecase/error/getalltasks"
+	geterr "taskservice/internal/usecase/error/gettask"
 	updatetaskerr "taskservice/internal/usecase/error/updatetask"
 	"taskservice/internal/usecase/interfaces"
 	deletemodel "taskservice/internal/usecase/models/deletetask"
 	getallmodel "taskservice/internal/usecase/models/getalltasks"
+	getmodel "taskservice/internal/usecase/models/gettask"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,15 +29,17 @@ type RestHandler struct {
 	updateUC interfaces.UpdateTaskUsecase
 	deleteUC interfaces.DeleteTaskUsecase
 	getAllUC interfaces.GetAllTasksUsecase
+	getUC    interfaces.GetTaskUsecase
 }
 
-func NewRestHandler(log *slog.Logger, createUC interfaces.CreateTaskUsecase, updateUC interfaces.UpdateTaskUsecase, deleteUC interfaces.DeleteTaskUsecase, getAllUC interfaces.GetAllTasksUsecase) *RestHandler {
+func NewRestHandler(log *slog.Logger, createUC interfaces.CreateTaskUsecase, updateUC interfaces.UpdateTaskUsecase, deleteUC interfaces.DeleteTaskUsecase, getAllUC interfaces.GetAllTasksUsecase, getUC interfaces.GetTaskUsecase) *RestHandler {
 	return &RestHandler{
 		log:      log,
 		createUC: createUC,
 		updateUC: updateUC,
 		deleteUC: deleteUC,
 		getAllUC: getAllUC,
+		getUC:    getUC,
 	}
 }
 
@@ -281,5 +285,53 @@ func (h *RestHandler) GetAll(ctx *gin.Context) {
 }
 
 func (h *RestHandler) Get(ctx *gin.Context) {
-	panic("not implemented")
+	const op = "resthandler.Get"
+
+	log := h.log.With(slog.String("op", op))
+
+	log.Info("starting get task request")
+
+	taskIdStr := ctx.Param("task_id")
+	taskId, err := strconv.ParseUint(taskIdStr, 10, 32)
+	if taskId == 0 || err != nil {
+		log.Warn("cannot get task id")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid project id",
+		})
+		ctx.Abort()
+		return
+	}
+
+	projectIdStr := ctx.Param("project_id")
+	projectId, err := strconv.ParseUint(projectIdStr, 10, 32)
+	if projectId == 0 || err != nil {
+		log.Warn("cannot get project id")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid project id",
+		})
+		ctx.Abort()
+		return
+	}
+
+	in := getmodel.NewGetTaskInput(uint32(taskId), uint32(projectId))
+
+	out, err := h.getUC.Execute(ctx.Request.Context(), in)
+	if err != nil {
+		if errors.Is(err, geterr.ErrTaskNotFound) {
+			log.Info("task not found")
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error": "task not found",
+			})
+		} else {
+			log.Warn("cannot get task", slog.String("error", err.Error()))
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "internal server error",
+			})
+		}
+		return
+	}
+
+	log.Info("get task completed successfully")
+	resp := handlmapper.GetOutputToResponse(out)
+	ctx.JSON(http.StatusOK, resp)
 }
