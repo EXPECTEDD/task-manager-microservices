@@ -6,5 +6,5 @@ import (
 )
 
 type GetAllTasksUsecase interface {
-	Execute(ctx context.Context, in *getallmodel.GetAllTasksInput) (*getallmodel.GetALlTasksOutput, error)
+	Execute(ctx context.Context, in *getallmodel.GetAllTasksInput) (*getallmodel.GetAllTasksOutput, error)
 }

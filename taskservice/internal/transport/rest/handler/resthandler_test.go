@@ -432,7 +432,7 @@ func TestRestHandl_GetAll(t *testing.T) {
 
 		expGetAllUC bool
 		in          *getallmodel.GetAllTasksInput
-		out         *getallmodel.GetALlTasksOutput
+		out         *getallmodel.GetAllTasksOutput
 		returnErr   error
 
 		expOut        []*taskdomain.TaskDomain

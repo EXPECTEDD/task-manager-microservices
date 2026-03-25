@@ -21,7 +21,7 @@ func NewGetAllTasksUC(log *slog.Logger, stor storage.StorageRepo) *GetAllTasksUC
 	}
 }
 
-func (g *GetAllTasksUC) Execute(ctx context.Context, in *getallmodel.GetAllTasksInput) (*getallmodel.GetALlTasksOutput, error) {
+func (g *GetAllTasksUC) Execute(ctx context.Context, in *getallmodel.GetAllTasksInput) (*getallmodel.GetAllTasksOutput, error) {
 	const op = "getalluc.Execute"
 
 	log := g.log.With(slog.String("op", op))

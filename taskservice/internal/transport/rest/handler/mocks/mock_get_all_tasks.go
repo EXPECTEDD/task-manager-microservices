@@ -42,10 +42,10 @@ func (m *MockGetAllTasksUsecase) EXPECT() *MockGetAllTasksUsecaseMockRecorder {
 }
 
 // Execute mocks base method.
-func (m *MockGetAllTasksUsecase) Execute(ctx context.Context, in *getallmodel.GetAllTasksInput) (*getallmodel.GetALlTasksOutput, error) {
+func (m *MockGetAllTasksUsecase) Execute(ctx context.Context, in *getallmodel.GetAllTasksInput) (*getallmodel.GetAllTasksOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Execute", ctx, in)
-	ret0, _ := ret[0].(*getallmodel.GetALlTasksOutput)
+	ret0, _ := ret[0].(*getallmodel.GetAllTasksOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

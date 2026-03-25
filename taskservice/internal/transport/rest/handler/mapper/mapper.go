@@ -46,7 +46,7 @@ func DeleteOutputToResponse(out *deletemodel.DeleteTaskOutput) *deletedto.Delete
 	}
 }
 
-func GetAllOutputToResponse(out *getallmodel.GetALlTasksOutput) *getalldto.GetAllResponse {
+func GetAllOutputToResponse(out *getallmodel.GetAllTasksOutput) *getalldto.GetAllResponse {
 	return &getalldto.GetAllResponse{
 		Tasks: out.Tasks,
 	}

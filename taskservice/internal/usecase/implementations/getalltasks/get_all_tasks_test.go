@@ -26,7 +26,7 @@ func TestGetAllTasks(t *testing.T) {
 		expReturn    []*taskdomain.TaskDomain
 		expReturnErr error
 
-		expOut *getallmodel.GetALlTasksOutput
+		expOut *getallmodel.GetAllTasksOutput
 		expErr error
 	}{
 		{
@@ -35,7 +35,7 @@ func TestGetAllTasks(t *testing.T) {
 			expReturn:    []*taskdomain.TaskDomain{{Id: 1, ProjectId: 1, Description: "asd", Deadline: timeNow}, {Id: 2, ProjectId: 1, Description: "dsa", Deadline: timeNow}},
 			expReturnErr: nil,
 
-			expOut: &getallmodel.GetALlTasksOutput{Tasks: []*taskdomain.TaskDomain{{Id: 1, ProjectId: 1, Description: "asd", Deadline: timeNow}, {Id: 2, ProjectId: 1, Description: "dsa", Deadline: timeNow}}},
+			expOut: &getallmodel.GetAllTasksOutput{Tasks: []*taskdomain.TaskDomain{{Id: 1, ProjectId: 1, Description: "asd", Deadline: timeNow}, {Id: 2, ProjectId: 1, Description: "dsa", Deadline: timeNow}}},
 			expErr: nil,
 		}, {
 			testName:     "Tasks not found",
@@ -43,7 +43,7 @@ func TestGetAllTasks(t *testing.T) {
 			expReturn:    []*taskdomain.TaskDomain{},
 			expReturnErr: storage.ErrTasksNotFound,
 
-			expOut: &getallmodel.GetALlTasksOutput{Tasks: nil},
+			expOut: &getallmodel.GetAllTasksOutput{Tasks: nil},
 			expErr: getallerr.ErrTasksNotFound,
 		}, {
 			testName:     "Invalid project id",
@@ -51,7 +51,7 @@ func TestGetAllTasks(t *testing.T) {
 			expReturn:    []*taskdomain.TaskDomain{},
 			expReturnErr: storage.ErrTasksNotFound,
 
-			expOut: &getallmodel.GetALlTasksOutput{Tasks: nil},
+			expOut: &getallmodel.GetAllTasksOutput{Tasks: nil},
 			expErr: getallerr.ErrTasksNotFound,
 		},
 	}

@@ -2,12 +2,12 @@ package getallmodel
 
 import taskdomain "taskservice/internal/domain/task"
 
-type GetALlTasksOutput struct {
+type GetAllTasksOutput struct {
 	Tasks []*taskdomain.TaskDomain
 }
 
-func NewGetAllTasksOutput(tasks []*taskdomain.TaskDomain) *GetALlTasksOutput {
-	return &GetALlTasksOutput{
+func NewGetAllTasksOutput(tasks []*taskdomain.TaskDomain) *GetAllTasksOutput {
+	return &GetAllTasksOutput{
 		Tasks: tasks,
 	}
 }
