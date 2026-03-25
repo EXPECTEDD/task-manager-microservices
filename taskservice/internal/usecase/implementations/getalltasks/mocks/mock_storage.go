@@ -84,6 +84,21 @@ func (mr *MockStorageRepoMockRecorder) Delete(ctx, taskId, projectId any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStorageRepo)(nil).Delete), ctx, taskId, projectId)
 }
 
+// Get mocks base method.
+func (m *MockStorageRepo) Get(ctx context.Context, taskId, projectId uint32) (*taskdomain.TaskDomain, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", ctx, taskId, projectId)
+	ret0, _ := ret[0].(*taskdomain.TaskDomain)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockStorageRepoMockRecorder) Get(ctx, taskId, projectId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockStorageRepo)(nil).Get), ctx, taskId, projectId)
+}
+
 // GetAll mocks base method.
 func (m *MockStorageRepo) GetAll(ctx context.Context, projectId uint32) ([]*taskdomain.TaskDomain, error) {
 	m.ctrl.T.Helper()
