@@ -3,11 +3,13 @@ package handlmapper
 import (
 	createdto "taskservice/internal/transport/rest/handler/dto/create"
 	deletedto "taskservice/internal/transport/rest/handler/dto/delete"
+	getdto "taskservice/internal/transport/rest/handler/dto/get"
 	getalldto "taskservice/internal/transport/rest/handler/dto/getall"
 	updatedto "taskservice/internal/transport/rest/handler/dto/update"
 	createmodel "taskservice/internal/usecase/models/createtask"
 	deletemodel "taskservice/internal/usecase/models/deletetask"
 	getallmodel "taskservice/internal/usecase/models/getalltasks"
+	getmodel "taskservice/internal/usecase/models/gettask"
 	updatemodel "taskservice/internal/usecase/models/updatetask"
 )
 
@@ -49,5 +51,11 @@ func DeleteOutputToResponse(out *deletemodel.DeleteTaskOutput) *deletedto.Delete
 func GetAllOutputToResponse(out *getallmodel.GetAllTasksOutput) *getalldto.GetAllResponse {
 	return &getalldto.GetAllResponse{
 		Tasks: out.Tasks,
+	}
+}
+
+func GetOutputToResponse(out *getmodel.GetTaskOutput) *getdto.GetResponse {
+	return &getdto.GetResponse{
+		Task: out.Task,
 	}
 }
